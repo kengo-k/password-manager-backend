@@ -8,23 +8,44 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
   <link href="../dist/styles.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-200 w-full h-full">
 
   <div id="app">
     <main>
-      <section class="">
-        <div>
-          Hello
-        </div>
+      <section>
+        <template v-for="password in passwords">
+          <dl class="flex flex-wrap p-4 m-4 bg-white text-gray-600 rounded-md max-w-sm lg:max-w-full">
+            <dt class="lg:hidden basis-1/2">{{header.name}}</dt>
+            <dd class="basis-1/2 lg:basis-1/5">{{password.name}}</dd>
+            <dt class="lg:hidden basis-1/2">{{header.desc}}</dt>
+            <dd class="basis-1/2 lg:basis-1/5">{{password.desc}}</dd>
+            <dt class="lg:hidden basis-1/2">{{header.user}}</dt>
+            <dd class="basis-1/2 lg:basis-1/5">{{password.user}}</dd>
+            <dt class="lg:hidden basis-1/2">{{header.pass}}</dt>
+            <dd class="basis-1/2 lg:basis-1/5">{{password.pass}}</dd>
+            <dt class="lg:hidden basis-1/2">{{header.note}}</dt>
+            <dd class="basis-1/2 lg:basis-1/5">{{password.note}}</dd>
+          </dl>
+        </template>
       </section>
     </main>
   </div>
 
   <script>
+    const p = (name, desc, user, pass, note) => {
+      return {
+        name, desc, user, pass, note
+      }
+    };
     const app = new Vue({
       el: "#app",
       data() {
         return {
+          header: p("名前", "説明", "ユーザID", "パスワード", "備考"),
+          passwords: [
+            { ...p("ポスト", "ポストの開閉ダイヤル", "-", "左に○, 右に△, 右に□", "自宅のポスト") },
+            { ...p("署名用電子証明書", "マイナンバーカード", "-", "XXXYYYZZZ", "納税の時に使う") }
+          ]
         };
       }
     });
