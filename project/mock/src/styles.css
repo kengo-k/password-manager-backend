@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-.password dl {
+._password dl {
   @apply
   flex flex-wrap
   p-4 my-4
@@ -14,13 +14,13 @@
   ;
 }
 
-.password dt {
+._password dt {
   @apply
   basis-1/2 lg:hidden
   ;
 }
 
-.password dd {
+._password dd {
   @apply
   basis-1/2 lg:basis-1/6
   truncate
