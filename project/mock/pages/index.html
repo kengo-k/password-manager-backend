@@ -11,20 +11,34 @@
 <body class="bg-gray-200 w-full h-full">
 
   <div id="app">
-    <main>
-      <section>
+    <main class="w-11/12 mx-auto">
+      <section class="password shadow-lg">
+        <header class="hidden lg:block">
+          <ul class="
+            flex
+            bg-slate-300 text-gray-600
+            p-4 mt-4
+            rounded-md
+            ">
+            <li
+              v-for="(value, key) in header"
+              class="basis-1/6">
+              {{value}}
+            </li>
+          </ul>
+        </header>
         <template v-for="password in passwords">
-          <dl class="flex flex-wrap p-4 m-4 bg-white text-gray-600 rounded-md max-w-sm lg:max-w-full">
-            <dt class="lg:hidden basis-1/2">{{header.name}}</dt>
-            <dd class="basis-1/2 lg:basis-1/5">{{password.name}}</dd>
-            <dt class="lg:hidden basis-1/2">{{header.desc}}</dt>
-            <dd class="basis-1/2 lg:basis-1/5">{{password.desc}}</dd>
-            <dt class="lg:hidden basis-1/2">{{header.user}}</dt>
-            <dd class="basis-1/2 lg:basis-1/5">{{password.user}}</dd>
-            <dt class="lg:hidden basis-1/2">{{header.pass}}</dt>
-            <dd class="basis-1/2 lg:basis-1/5">{{password.pass}}</dd>
-            <dt class="lg:hidden basis-1/2">{{header.note}}</dt>
-            <dd class="basis-1/2 lg:basis-1/5">{{password.note}}</dd>
+          <dl>
+            <dt>{{header.name}}</dt>
+            <dd>{{password.name}}</dd>
+            <dt>{{header.desc}}</dt>
+            <dd>{{password.desc}}</dd>
+            <dt>{{header.user}}</dt>
+            <dd>{{password.user}}</dd>
+            <dt>{{header.pass}}</dt>
+            <dd>{{password.pass}}</dd>
+            <dt>{{header.note}}</dt>
+            <dd>{{password.note}}</dd>
           </dl>
         </template>
       </section>

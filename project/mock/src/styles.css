@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.password dl {
+  @apply
+  flex flex-wrap
+  p-4 my-4
+  lg:m-0
+  bg-white hover:bg-slate-50
+  text-gray-600
+  rounded-md
+  lg:border
+  ;
+}
+
+.password dt {
+  @apply
+  basis-1/2 lg:hidden
+  ;
+}
+
+.password dd {
+  @apply
+  basis-1/2 lg:basis-1/6
+  truncate
+  ;
+}
