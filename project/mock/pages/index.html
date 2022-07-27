@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>パスワード管理</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
   <link href="../dist/styles.css" rel="stylesheet">
 </head>
@@ -57,9 +57,29 @@
             <dt>{{header.desc}}</dt>
             <dd>{{password.desc}}</dd>
             <dt>{{header.user}}</dt>
-            <dd>{{password.user}}</dd>
+            <dd class="relative">
+              <div class="absolute left-0 top-1 hover:cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
+                  <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z" />
+                </svg>
+              </div>
+              <div class="absolute left-6">
+                {{password.user}}
+              </div>
+            </dd>
             <dt>{{header.pass}}</dt>
-            <dd>{{password.pass}}</dd>
+            <dd class="relative">
+              <div class="absolute left-0 top-1 hover:cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
+                  <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z" />
+                </svg>
+              </div>
+              <div class="absolute left-6">
+                {{password.pass}}
+              </div>
+            </dd>
             <dt>{{header.note}}</dt>
             <dd>{{password.note}}</dd>
           </dl>

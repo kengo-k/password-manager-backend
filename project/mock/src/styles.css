@@ -17,6 +17,9 @@
 ._password dt {
   @apply
   basis-1/2 lg:hidden
+  border-l-8 border-gray-200
+  my-1
+  pl-2
   ;
 }
 
