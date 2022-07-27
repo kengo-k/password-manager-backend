@@ -49,7 +49,7 @@
               class="basis-1/6">
               {{value}}
             </li>
-            <li class="basis-1/6">Actions</li>
+            <li class="basis-1/6"></li>
           </ul>
         </header>
         <template v-for="password in passwords">
@@ -84,10 +84,10 @@
             </dd>
             <dt>{{header.note}}</dt>
             <dd>{{password.note}}</dd>
-            <dt>Actions</dt>
+            <dt class="border-none"></dt>
             <dd>
-              <button>edit</button>
-              <button>delete</button>
+              <button class="underline text-gray-500">Edit</button>
+              <button class="mx-4 py-1 px-2 bg-red-500 text-white rounded-2xl">Delete</button>
             </dd>
           </dl>
         </template>
