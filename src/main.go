@@ -8,34 +8,40 @@ import (
 	"github.com/kengo-k/password-manager/model"
 )
 
-type Connection struct {
+type Repository interface {
+	Find() []model.Password
+	Save()
+	Delete()
+}
+
+type Database struct {
 	db *model.Database
 }
 
-func (c *Connection) Find() []model.Password {
+func (c *Database) Find() []model.Password {
 	return []model.Password{}
 }
 
-func (c *Connection) Save() {
+func (c *Database) Save() {
 }
 
-func (c *Connection) Delete() {
+func (c *Database) Delete() {
 }
 
-func initDatabase() *Connection {
+func initRepository() Repository {
 	db := &model.Database{}
-	conn := &Connection{db: db}
+	conn := &Database{db: db}
 	return conn
 }
 
 func setupRouter() *gin.Engine {
 
-	conn := initDatabase()
+	repo := initRepository()
 	r := gin.Default()
 
 	// パスワードの一覧を返却する
 	r.GET("/api/passwords", func(c *gin.Context) {
-		data := conn.Find()
+		data := repo.Find()
 		c.PureJSON(http.StatusOK, data)
 	})
 
