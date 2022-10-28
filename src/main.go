@@ -4,21 +4,43 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kengo-k/password-manager/model"
 )
 
-var db = make(map[string]string)
+type Connection struct {
+	db *model.Database
+}
+
+func (c *Connection) Find() []model.Password {
+	return []model.Password{}
+}
+
+func (c *Connection) Save() {
+}
+
+func (c *Connection) Delete() {
+}
+
+func initDatabase() *Connection {
+	db := &model.Database{}
+	conn := &Connection{db: db}
+	return conn
+}
 
 func setupRouter() *gin.Engine {
 
+	conn := initDatabase()
 	r := gin.Default()
 
-	r.GET("/", func(c *gin.Context) {
-		data := map[string]any{
-			"message": "Hello,Gin!",
-			"success": true,
-			"values":  []int{1, 2, 3, 4, 5},
-		}
+	// パスワードの一覧を返却する
+	r.GET("/api/passwords", func(c *gin.Context) {
+		data := conn.Find()
 		c.PureJSON(http.StatusOK, data)
+	})
+
+	r.POST("/api/passwords", func(c *gin.Context) {
+		conn.Save()
+		c.PureJSON(http.StatusOK, map[string]any{})
 	})
 
 	return r
@@ -26,6 +48,5 @@ func setupRouter() *gin.Engine {
 
 func main() {
 	r := setupRouter()
-	// Listen and Server in 0.0.0.0:8080
 	r.Run(":8080")
 }
