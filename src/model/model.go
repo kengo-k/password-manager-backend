@@ -9,14 +9,14 @@ type Category struct {
 }
 
 type Password struct {
-	ID        int
-	Category  int
-	User      *string
-	Password  *string
-	Mail      *string
-	Note1     *string
-	Note2     *string
-	Note3     *string
+	ID        int     `form:"id"`
+	Category  int     `form:"category"`
+	User      *string `form:"user"`
+	Password  *string `form:"password"`
+	Mail      *string `form:"mail"`
+	Note1     *string `form:"note1"`
+	Note2     *string `form:"note2"`
+	Note3     *string `form:"note3"`
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }

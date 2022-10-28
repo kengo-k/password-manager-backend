@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -39,7 +40,16 @@ func setupRouter() *gin.Engine {
 	})
 
 	r.POST("/api/passwords", func(c *gin.Context) {
-		conn.Save()
+		var p model.Password
+		if c.ShouldBind(&p) == nil {
+			log.Printf("id: %v", p.ID)
+			log.Printf("category: %v", p.Category)
+			log.Printf("user: %v", p.User)
+			log.Printf("password: %v", p.Password)
+			log.Printf("note1: %v", p.Note1)
+			log.Printf("note2: %v", p.Note2)
+			log.Printf("note3: %v", p.Note3)
+		}
 		c.PureJSON(http.StatusOK, map[string]any{})
 	})
 
