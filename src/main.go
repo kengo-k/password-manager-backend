@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/kengo-k/password-manager/model"
 )
 
@@ -55,6 +56,14 @@ func setupRouter() *gin.Engine {
 			log.Printf("note1: %v", p.Note1)
 			log.Printf("note2: %v", p.Note2)
 			log.Printf("note3: %v", p.Note3)
+			// IDが存在しない場合は新規作成
+			if p.ID == 0 {
+				newID, err := uuid.NewUUID()
+				if err != nil {
+					panic("failed to create id")
+				}
+				log.Printf("new id: %v", newID)
+			}
 		}
 		c.PureJSON(http.StatusOK, map[string]any{})
 	})
