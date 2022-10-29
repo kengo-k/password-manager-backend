@@ -1,16 +1,18 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Category struct {
-	ID   int
-	Name string
-	Desc string
+	ID   *string
+	Name *string
+	Desc *string
 }
 
 type Password struct {
-	ID        int     `form:"id"`
-	Category  int     `form:"category"`
+	ID        *string `form:"id"`
+	Category  *string `form:"category"`
 	User      *string `form:"user"`
 	Password  *string `form:"password"`
 	Mail      *string `form:"mail"`
@@ -22,6 +24,6 @@ type Password struct {
 }
 
 type Database struct {
-	Categories map[int]Category
-	Passwords  map[int]Password
+	Categories map[string]*Category
+	Passwords  map[string]*Password
 }
