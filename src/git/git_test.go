@@ -9,6 +9,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/storage/memory"
 )
 
@@ -47,4 +48,13 @@ func TestClone(t *testing.T) {
 			When:  time.Now(),
 		},
 	})
+
+	auth := &http.BasicAuth{
+		Username: "root",
+		Password: "root",
+	}
+	err = repo.Push(&git.PushOptions{Auth: auth})
+	if err != nil {
+		t.Errorf("failed to push: %v", err)
+	}
 }
