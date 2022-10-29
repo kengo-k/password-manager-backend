@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -88,8 +89,12 @@ func setupRouter() *gin.Engine {
 				}
 				id := newID.String()
 				cat.ID = &id
+				now := time.Now()
+				cat.CreatedAt = &now
+				cat.UpdatedAt = &now
 				repo.SaveCategory(&cat)
 				c.PureJSON(http.StatusOK, map[string]any{})
+				return
 			}
 		}
 		// 想定外のエラー

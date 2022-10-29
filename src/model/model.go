@@ -5,9 +5,11 @@ import (
 )
 
 type Category struct {
-	ID   *string
-	Name *string
-	Desc *string
+	ID        *string
+	Name      *string
+	Desc      *string
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
 }
 
 type Password struct {
