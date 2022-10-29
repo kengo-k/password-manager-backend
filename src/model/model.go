@@ -5,11 +5,11 @@ import (
 )
 
 type Category struct {
-	ID        *string
-	Name      *string
-	Desc      *string
-	CreatedAt *time.Time
-	UpdatedAt *time.Time
+	ID        *string    `form:"id" json:"id"`
+	Name      *string    `form:"name" json:"name"`
+	Desc      *string    `form:"desc" json:"desc"`
+	CreatedAt *time.Time `json:"created_at"`
+	UpdatedAt *time.Time `json:"updated_at"`
 }
 
 type Password struct {
