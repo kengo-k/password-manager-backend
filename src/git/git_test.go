@@ -1,6 +1,7 @@
 package git
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/go-git/go-billy/v5/memfs"
@@ -18,8 +19,15 @@ func TestClone(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to clone: %v", err)
 	}
-	_, err = repo.Worktree()
+	w, err := repo.Worktree()
 	if err != nil {
 		t.Errorf("failed to get work tree")
+	}
+	fileList, err := w.Filesystem.ReadDir(".")
+	if err != nil {
+		t.Errorf("failed to read dir")
+	}
+	for _, f := range fileList {
+		fmt.Printf("filename: %s\n", f.Name())
 	}
 }
