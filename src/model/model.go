@@ -18,9 +18,7 @@ type Password struct {
 	User      *string `form:"user"`
 	Password  *string `form:"password"`
 	Mail      *string `form:"mail"`
-	Note1     *string `form:"note1"`
-	Note2     *string `form:"note2"`
-	Note3     *string `form:"note3"`
+	Note      *string `form:"note"`
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }

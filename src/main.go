@@ -108,9 +108,7 @@ func setupRouter() *gin.Engine {
 			log.Printf("category: %v", p.Category)
 			log.Printf("user: %v", p.User)
 			log.Printf("password: %v", p.Password)
-			log.Printf("note1: %v", p.Note1)
-			log.Printf("note2: %v", p.Note2)
-			log.Printf("note3: %v", p.Note3)
+			log.Printf("note: %v", p.Note)
 			// 入力チェック
 			// カテゴリが未設定の場合はエラーで終了する
 			if p.Category == nil {
