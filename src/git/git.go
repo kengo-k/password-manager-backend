@@ -88,7 +88,7 @@ func (g *Git) Load(mdLines []string) ([]*model.Password, []*model.Category, erro
 				CreatedAt: nil,
 				UpdatedAt: nil,
 			}
-			fmt.Printf("line: %#v\n", p)
+			fmt.Printf("line: %v\n", p)
 		}
 	}
 

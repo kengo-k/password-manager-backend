@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -21,6 +22,10 @@ type Password struct {
 	Note      *string `form:"note"`
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
+}
+
+func (p Password) String() string {
+	return fmt.Sprintf("{ ID: %s, User: %s, Password: %s, Mail: %s }", *p.ID, *p.User, *p.Password, *p.Mail)
 }
 
 type Database struct {
