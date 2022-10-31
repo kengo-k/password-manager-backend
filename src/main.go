@@ -8,60 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/kengo-k/password-manager/model"
+	"github.com/kengo-k/password-manager/repo"
 )
-
-type Repository interface {
-	FindPasswords() []model.Password
-	FindCategories() []model.Category
-	SavePassword(p *model.Password)
-	SaveCategory(cat *model.Category)
-	DeletePassword(p *model.Password)
-	DeleteCategory(cat *model.Category)
-}
-
-type Database struct {
-	db *model.Database
-}
-
-func (c *Database) FindPasswords() []model.Password {
-	return []model.Password{}
-}
-
-func (c *Database) FindCategories() []model.Category {
-	var cats []model.Category
-	for _, v := range c.db.Categories {
-		cats = append(cats, *v)
-	}
-	return cats
-}
-
-func (c *Database) SavePassword(p *model.Password) {
-	c.db.Passwords[*p.ID] = p
-}
-
-func (c *Database) DeletePassword(p *model.Password) {
-
-}
-
-func (c *Database) SaveCategory(cat *model.Category) {
-	c.db.Categories[*cat.ID] = cat
-}
-
-func (c *Database) DeleteCategory(cat *model.Category) {
-}
-
-func initRepository() Repository {
-	db := &model.Database{
-		Categories: map[string]*model.Category{},
-		Passwords:  map[string]*model.Password{},
-	}
-	conn := &Database{db: db}
-	return conn
-}
 
 func setupRouter() *gin.Engine {
 
-	repo := initRepository()
+	repo := repo.NewRepository()
 	r := gin.Default()
 
 	// パスワードの一覧を返却する
