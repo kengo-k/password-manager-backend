@@ -8,13 +8,13 @@ import (
 
 func TestInitRepository(t *testing.T) {
 	g := &git.Git{}
-	r := &RepositoryImpl{}
+	r := newRepositoryImpl()
 	passwords, err := g.Checkout()
 	if err != nil {
-		t.Errorf("failed to checkout passwords")
+		t.Errorf("failed to checkout passwords: %v", err)
 	}
 	err = r.Init(passwords)
 	if err != nil {
-		t.Errorf("failed to init repository")
+		t.Errorf("failed to init repository: %v", err)
 	}
 }

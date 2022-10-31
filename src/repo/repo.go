@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/kengo-k/password-manager/git"
 	"github.com/kengo-k/password-manager/model"
 )
 
@@ -18,7 +17,7 @@ type Repository interface {
 }
 
 type RepositoryImpl struct {
-	Passwords  map[string]*model.Password
+	Passwords  map[int]*model.Password
 	Categories map[string]*model.Category
 }
 
@@ -35,20 +34,23 @@ func (r *RepositoryImpl) FindCategories() []model.Category {
 }
 
 func (r *RepositoryImpl) SavePassword(p *model.Password) {
-	r.Passwords[*p.ID] = p
+	r.Passwords[p.ID] = p
 }
 
 func (r *RepositoryImpl) DeletePassword(p *model.Password) {
-
+	delete(r.Passwords, p.ID)
 }
 
 func (r *RepositoryImpl) SaveCategory(cat *model.Category) {
-	r.Categories[*cat.ID] = cat
+	r.Categories[cat.Name] = cat
 }
 
 func (r *RepositoryImpl) DeleteCategory(cat *model.Category) {
+	delete(r.Categories, cat.Name)
 }
 
+// 旧形式パスワードを読み込む
+// ※移行が完了したら不要になる
 func (r *RepositoryImpl) Init(mdLines []string) error {
 
 	foundCategory := false
@@ -65,20 +67,26 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 		}
 		return ret
 	}
-
+	pid := 1
 	for _, l := range mdLines {
 		// 空行の場合はスキップする
 		if len(l) == 0 {
 			continue
 		}
+		var c model.Category
 		// #で始まるコメント行の場合はカテゴリ名が記載されている
 		if strings.HasPrefix(l, "#") {
 			foundCategory = true
-			_, category, ok := strings.Cut(l, "#")
+			_, categoryName, ok := strings.Cut(l, "#")
 			if !ok {
 				panic("failed to get category name")
 			}
-			fmt.Printf("category: %s\n", category)
+			c = model.Category{
+				Name: categoryName,
+				Desc: nil,
+			}
+			r.Categories[categoryName] = &c
+			fmt.Printf("category: %s\n", categoryName)
 			continue
 		}
 		if foundCategory {
@@ -95,32 +103,48 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 		}
 		if foundSeparator {
 			columns := splitColumns(l)
-			if len(columns) != 7 {
-				panic("invalid column length")
+			if len(columns) != 5 && len(columns) != 6 {
+				panic(fmt.Sprintf("invalid column length: %v", len(columns)))
 			}
-			p := model.Password{
-				ID:        &columns[0],
-				User:      &columns[1],
-				Password:  &columns[2],
-				Mail:      &columns[3],
-				Note:      &columns[4],
-				CreatedAt: nil,
-				UpdatedAt: nil,
+
+			if len(columns) == 5 {
+				p := &model.Password{
+					ID:       pid,
+					Name:     columns[0],
+					Desc:     &columns[1],
+					Category: c,
+					User:     &columns[2],
+					Password: &columns[3],
+					Mail:     nil,
+					Note:     &columns[4],
+				}
+				r.Passwords[p.ID] = p
+				fmt.Printf("line: %v\n", *p)
 			}
-			fmt.Printf("line: %v\n", p)
+			if len(columns) == 6 {
+				p := &model.Password{
+					ID:       pid,
+					Name:     columns[0],
+					Desc:     &columns[1],
+					Category: c,
+					User:     &columns[2],
+					Password: &columns[3],
+					Mail:     &columns[4],
+					Note:     &columns[5],
+				}
+				r.Passwords[p.ID] = p
+				fmt.Printf("line: %v\n", *p)
+			}
 		}
 	}
 
 	return nil
 }
 
-func NewRepository() Repository {
-	g := &git.Git{}
-	passwords, err := g.Checkout()
-	if err != nil {
-		panic("failed to checkout passwords")
+func newRepositoryImpl() *RepositoryImpl {
+	r := &RepositoryImpl{
+		Categories: map[string]*model.Category{},
+		Passwords:  map[int]*model.Password{},
 	}
-	r := &RepositoryImpl{}
-	r.Init(passwords)
 	return r
 }
