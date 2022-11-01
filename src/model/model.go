@@ -43,16 +43,11 @@ type Password struct {
 	UpdatedAt time.Time
 }
 
-func ifNil(a any) string {
-	tos, ok := a.(fmt.Stringer)
-	if a == nil {
+func ifNil(ps *string) string {
+	if ps == nil {
 		return "<nil>"
 	}
-	if ok {
-		return tos.String()
-	} else {
-		return fmt.Sprintf("%v", a)
-	}
+	return fmt.Sprintf("\"%s\"", *ps)
 }
 
 func (p Password) String() string {
