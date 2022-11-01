@@ -73,7 +73,7 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 		return ret
 	}
 	var c model.Category
-	pid := 1
+	pid := 0
 	for _, l := range mdLines {
 		// 空行の場合はスキップする
 		if len(l) == 0 {
@@ -104,6 +104,7 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 			continue
 		}
 		if foundSeparator {
+			pid++
 			columns := splitColumns(l)
 			if len(columns) != 5 && len(columns) != 6 {
 				return fmt.Errorf("faild to load, invalid column length: %v", len(columns))
