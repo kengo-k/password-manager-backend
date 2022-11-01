@@ -60,7 +60,6 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 
 	foundCategory := false
 	foundHeader := false
-	foundSeparator := false
 
 	splitColumns := func(line string) []string {
 		ret := []string{}
@@ -100,42 +99,40 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 		}
 		if foundHeader {
 			foundHeader = false
-			foundSeparator = true
 			continue
 		}
-		if foundSeparator {
-			pid++
-			columns := splitColumns(l)
-			if len(columns) != 5 && len(columns) != 6 {
-				return fmt.Errorf("faild to load, invalid column length: %v", len(columns))
-			}
 
-			if len(columns) == 5 {
-				p := &model.Password{
-					ID:       pid,
-					Name:     columns[0],
-					Desc:     &columns[1],
-					Category: c,
-					User:     &columns[2],
-					Password: &columns[3],
-					Mail:     nil,
-					Note:     &columns[4],
-				}
-				r.Passwords[p.ID] = p
+		pid++
+		columns := splitColumns(l)
+		if len(columns) != 5 && len(columns) != 6 {
+			return fmt.Errorf("faild to load, invalid column length: %v", len(columns))
+		}
+
+		if len(columns) == 5 {
+			p := &model.Password{
+				ID:       pid,
+				Name:     columns[0],
+				Desc:     &columns[1],
+				Category: c,
+				User:     &columns[2],
+				Password: &columns[3],
+				Mail:     nil,
+				Note:     &columns[4],
 			}
-			if len(columns) == 6 {
-				p := &model.Password{
-					ID:       pid,
-					Name:     columns[0],
-					Desc:     &columns[1],
-					Category: c,
-					User:     &columns[2],
-					Password: &columns[3],
-					Mail:     &columns[4],
-					Note:     &columns[5],
-				}
-				r.Passwords[p.ID] = p
+			r.Passwords[p.ID] = p
+		}
+		if len(columns) == 6 {
+			p := &model.Password{
+				ID:       pid,
+				Name:     columns[0],
+				Desc:     &columns[1],
+				Category: c,
+				User:     &columns[2],
+				Password: &columns[3],
+				Mail:     &columns[4],
+				Note:     &columns[5],
 			}
+			r.Passwords[p.ID] = p
 		}
 	}
 
