@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/kengo-k/password-manager/git"
 	"github.com/kengo-k/password-manager/model"
 )
 
 type Repository interface {
-	FindPasswords() []model.Password
-	FindCategories() []model.Category
+	FindPasswords() []*model.Password
+	FindCategories() []*model.Category
 	SavePassword(p *model.Password)
 	SaveCategory(cat *model.Category)
 	DeletePassword(p *model.Password)
@@ -21,16 +22,20 @@ type RepositoryImpl struct {
 	Categories map[string]*model.Category
 }
 
-func (r *RepositoryImpl) FindPasswords() []model.Password {
-	return []model.Password{}
+func (r *RepositoryImpl) FindPasswords() []*model.Password {
+	ret := []*model.Password{}
+	for _, v := range r.Passwords {
+		ret = append(ret, v)
+	}
+	return ret
 }
 
-func (r *RepositoryImpl) FindCategories() []model.Category {
-	var cats []model.Category
+func (r *RepositoryImpl) FindCategories() []*model.Category {
+	ret := make([]*model.Category, len(r.Categories))
 	for _, v := range r.Categories {
-		cats = append(cats, *v)
+		ret = append(ret, v)
 	}
-	return cats
+	return ret
 }
 
 func (r *RepositoryImpl) SavePassword(p *model.Password) {
@@ -134,6 +139,20 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 	}
 
 	return nil
+}
+
+func NewRepository() (Repository, error) {
+	g := &git.Git{}
+	passwords, err := g.Checkout()
+	if err != nil {
+		return nil, fmt.Errorf("faild to create repository: %v", err)
+	}
+	r := &RepositoryImpl{
+		Categories: map[string]*model.Category{},
+		Passwords:  map[int]*model.Password{},
+	}
+	r.Init(passwords)
+	return r, nil
 }
 
 func newRepositoryImpl() *RepositoryImpl {

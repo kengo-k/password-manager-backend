@@ -1,18 +1,24 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/kengo-k/password-manager/repo"
 )
 
 func setupRouter() *gin.Engine {
 
-	//repo := repo.NewRepository()
+	repo, err := repo.NewRepository()
+	if err != nil {
+		panic(err)
+	}
 	r := gin.Default()
 
 	// パスワードの一覧を返却する
 	r.GET("/api/passwords", func(c *gin.Context) {
-		// data := repo.FindPasswords()
-		// c.PureJSON(http.StatusOK, data)
+		data := repo.FindPasswords()
+		c.PureJSON(http.StatusOK, data)
 	})
 
 	r.GET("/api/categories", func(c *gin.Context) {
