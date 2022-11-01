@@ -79,28 +79,24 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 			foundCategory = true
 			_, categoryName, ok := strings.Cut(l, "#")
 			if !ok {
-				panic("failed to get category name")
+				return fmt.Errorf("failed to get catgory name")
 			}
-			fmt.Printf("categoryName: %s\n", categoryName)
 			c = model.Category{
 				Name: categoryName,
 				Desc: nil,
 			}
 			fmt.Printf("category: %v\n", c)
 			r.Categories[categoryName] = &c
-			//fmt.Printf("category: %s\n", categoryName)
 			continue
 		}
 		if foundCategory {
 			foundCategory = false
 			foundHeader = true
-			//fmt.Printf("header: %s\n", l)
 			continue
 		}
 		if foundHeader {
 			foundHeader = false
 			foundSeparator = true
-			//fmt.Println("separator")
 			continue
 		}
 		if foundSeparator {
@@ -121,7 +117,6 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 					Note:     &columns[4],
 				}
 				r.Passwords[p.ID] = p
-				fmt.Printf("line: %v\n", *p)
 			}
 			if len(columns) == 6 {
 				p := &model.Password{
@@ -135,7 +130,6 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 					Note:     &columns[5],
 				}
 				r.Passwords[p.ID] = p
-				fmt.Printf("line: %v\n", *p)
 			}
 		}
 	}
