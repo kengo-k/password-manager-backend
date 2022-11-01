@@ -85,7 +85,6 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 				Name: categoryName,
 				Desc: nil,
 			}
-			fmt.Printf("category: %v\n", c)
 			r.Categories[categoryName] = &c
 			continue
 		}
@@ -102,7 +101,7 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 		if foundSeparator {
 			columns := splitColumns(l)
 			if len(columns) != 5 && len(columns) != 6 {
-				panic(fmt.Sprintf("invalid column length: %v", len(columns)))
+				return fmt.Errorf("faild to load, invalid column length: %v", len(columns))
 			}
 
 			if len(columns) == 5 {
