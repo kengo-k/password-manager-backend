@@ -18,7 +18,8 @@ type Category struct {
 }
 
 func (c Category) String() string {
-	return fmt.Sprintf(`{ name: %v, desc: %v, created_at: %v, updated_at: %v }`, c.Name, c.Desc, c.CreatedAt, c.UpdatedAt)
+	return fmt.Sprintf(`{ name: %v, desc: %v, created_at: %v, updated_at: %v }`,
+		ifNil(&c.Name), ifNil(c.Desc), c.CreatedAt, c.UpdatedAt)
 }
 
 type PasswordRequest struct {
@@ -51,6 +52,7 @@ func ifNil(ps *string) string {
 }
 
 func (p Password) String() string {
-	return fmt.Sprintf(`{ id: %v, name: %v, desc: %v, category: %v, user: %v, password: %v, mail: %v, note: %v, created_at: %v, updated_at: %v }`,
-		p.ID, p.Name, ifNil(p.Desc), p.Category, ifNil(p.User), ifNil(p.Password), ifNil(p.Mail), ifNil(p.Note), p.CreatedAt, p.UpdatedAt)
+	return fmt.Sprintf("aaa: %v", p.Category)
+	//return fmt.Sprintf(`{ id: %v, name: %v, desc: %v, category: %v, user: %v, password: %v, mail: %v, note: %v, created_at: %v, updated_at: %v }`,
+	//	p.ID, p.Name, ifNil(p.Desc), p.Category, ifNil(p.User), ifNil(p.Password), ifNil(p.Mail), ifNil(p.Note), p.CreatedAt, p.UpdatedAt)
 }

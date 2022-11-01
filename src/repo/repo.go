@@ -67,13 +67,13 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 		}
 		return ret
 	}
+	var c model.Category
 	pid := 1
 	for _, l := range mdLines {
 		// 空行の場合はスキップする
 		if len(l) == 0 {
 			continue
 		}
-		var c model.Category
 		// #で始まるコメント行の場合はカテゴリ名が記載されている
 		if strings.HasPrefix(l, "#") {
 			foundCategory = true
@@ -81,24 +81,26 @@ func (r *RepositoryImpl) Init(mdLines []string) error {
 			if !ok {
 				panic("failed to get category name")
 			}
+			fmt.Printf("categoryName: %s\n", categoryName)
 			c = model.Category{
 				Name: categoryName,
 				Desc: nil,
 			}
+			fmt.Printf("category: %v\n", c)
 			r.Categories[categoryName] = &c
-			fmt.Printf("category: %s\n", categoryName)
+			//fmt.Printf("category: %s\n", categoryName)
 			continue
 		}
 		if foundCategory {
 			foundCategory = false
 			foundHeader = true
-			fmt.Printf("header: %s\n", l)
+			//fmt.Printf("header: %s\n", l)
 			continue
 		}
 		if foundHeader {
 			foundHeader = false
 			foundSeparator = true
-			fmt.Println("separator")
+			//fmt.Println("separator")
 			continue
 		}
 		if foundSeparator {
