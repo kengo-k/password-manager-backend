@@ -54,6 +54,25 @@ func (r *RepositoryImpl) DeleteCategory(cat *model.Category) {
 	delete(r.Categories, cat.Name)
 }
 
+func ConvertMarkdown(passwords map[string][]*model.Password) []string {
+	markdown := []string{}
+	for categoryName, categoryPasswords := range passwords {
+		head := categoryPasswords[0]
+		categoryLine := fmt.Sprintf("# %s: %s", categoryName, *head.Category.Desc)
+		headerLine := "|id|name|desc|user|password|mail|note|"
+		separatorLine := "|---|---|---|---|---|---|---|"
+		markdown = append(markdown, categoryLine)
+		markdown = append(markdown, headerLine)
+		markdown = append(markdown, separatorLine)
+		for _, pwd := range categoryPasswords {
+			line := fmt.Sprintf("|%v|%v|%v|%v|%v|%v|%v|",
+				pwd.ID, pwd.Name, pwd.Desc, pwd.User, pwd.Password, pwd.Mail, pwd.Note)
+			markdown = append(markdown, line)
+		}
+	}
+	return markdown
+}
+
 // 旧形式パスワードを読み込む
 // ※移行が完了したら不要になる
 func (r *RepositoryImpl) Init(mdLines []string) error {
