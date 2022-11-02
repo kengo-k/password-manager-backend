@@ -66,7 +66,7 @@ func ConvertMarkdown(passwords map[string][]*model.Password) []string {
 		markdown = append(markdown, separatorLine)
 		for _, pwd := range categoryPasswords {
 			line := fmt.Sprintf("|%v|%v|%v|%v|%v|%v|%v|",
-				pwd.ID, pwd.Name, pwd.Desc, pwd.User, pwd.Password, pwd.Mail, pwd.Note)
+				pwd.ID, pwd.Name, *pwd.Desc, *pwd.User, *pwd.Password, *pwd.Mail, *pwd.Note)
 			markdown = append(markdown, line)
 		}
 	}
