@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 )
@@ -139,6 +140,48 @@ func (d *Database) Init(mdLines []string) error {
 		}
 	}
 
+	return nil
+}
+
+func (d *Database) Serialize() [][]*Password {
+	ret := [][]*Password{}
+	cmap := map[string]*[]*Password{}
+	for cname := range d.Categories {
+		passwords := []*Password{}
+		ret = append(ret, passwords)
+		cmap[cname] = &passwords
+	}
+	for _, p := range d.Passwords {
+		passwords := cmap[p.Category.Name]
+		*passwords = append(*passwords, p)
+		cmap[p.Category.Name] = passwords
+	}
+	sort.Slice(ret, func(a int, b int) bool {
+		p1 := ret[a]
+		p2 := ret[b]
+		return p1[0].Category.Name < p2[0].Category.Name
+	})
+	fmt.Printf("ret len: %v", len(ret))
+	return ret
+}
+
+func (d *Database) ConvertMarkdown() []string {
+	// markdown := []string{}
+	// for categoryName, categoryPasswords := range passwords {
+	// 	head := categoryPasswords[0]
+	// 	categoryLine := fmt.Sprintf("# %s: %s", categoryName, *head.Category.Desc)
+	// 	headerLine := "|id|name|desc|user|password|mail|note|"
+	// 	separatorLine := "|---|---|---|---|---|---|---|"
+	// 	markdown = append(markdown, categoryLine)
+	// 	markdown = append(markdown, headerLine)
+	// 	markdown = append(markdown, separatorLine)
+	// 	for _, pwd := range categoryPasswords {
+	// 		line := fmt.Sprintf("|%v|%v|%v|%v|%v|%v|%v|",
+	// 			pwd.ID, pwd.Name, *pwd.Desc, *pwd.User, *pwd.Password, *pwd.Mail, *pwd.Note)
+	// 		markdown = append(markdown, line)
+	// 	}
+	// }
+	// return markdown
 	return nil
 }
 

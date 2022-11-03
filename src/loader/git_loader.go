@@ -41,6 +41,6 @@ func (g *GitLoader) Load() ([]string, error) {
 	return l, nil
 }
 
-func NewLoader() Loader {
+func NewGitLoader() Loader {
 	return &GitLoader{}
 }
