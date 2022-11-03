@@ -3,22 +3,8 @@ package repo
 import (
 	"testing"
 
-	"github.com/kengo-k/password-manager/git"
 	"github.com/kengo-k/password-manager/model"
 )
-
-func TestInitRepository(t *testing.T) {
-	g := &git.Git{}
-	r := newRepositoryImpl()
-	passwords, err := g.Checkout()
-	if err != nil {
-		t.Errorf("failed to checkout passwords: %v", err)
-	}
-	err = r.Init(passwords)
-	if err != nil {
-		t.Errorf("failed to init repository: %v", err)
-	}
-}
 
 func TestConvertMarkdown(t *testing.T) {
 	p := func(s string) *string {
