@@ -1,5 +1,5 @@
-//go:build !fromfile_tofile || ignore || !fromgit_tofile
-// +build !fromfile_tofile ignore !fromgit_tofile
+//go:build !fromfile_tofile && ignore && !fromgit_tofile
+// +build !fromfile_tofile,ignore,!fromgit_tofile
 
 package context
 
