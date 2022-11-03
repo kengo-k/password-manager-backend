@@ -1,12 +1,12 @@
-//go:build fromgit_tofile
-// +build fromgit_tofile
+//go:build git2file
+// +build git2file
 
 package context
 
 import "fmt"
 
 func init() {
-	fmt.Println("fromgit_tofile")
+	fmt.Println("mode: git2file")
 }
 
 func Load() ([]string, error) {
