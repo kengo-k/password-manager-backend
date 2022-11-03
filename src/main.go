@@ -3,16 +3,24 @@ package main
 import (
 	"net/http"
 
+	"github.com/kengo-k/password-manager/context"
+
 	"github.com/gin-gonic/gin"
+	"github.com/kengo-k/password-manager/model"
 	"github.com/kengo-k/password-manager/repo"
 )
 
 func setupRouter() *gin.Engine {
 
-	repo, err := repo.NewRepository()
+	passwords, err := context.Load()
 	if err != nil {
-		panic(err)
+		panic("failed to load initial data")
 	}
+	database := model.NewDatabase()
+	database.Init(passwords)
+
+	repo := repo.NewRepository(database)
+
 	r := gin.Default()
 
 	// パスワードの一覧を返却する

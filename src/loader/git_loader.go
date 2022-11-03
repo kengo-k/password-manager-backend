@@ -1,4 +1,4 @@
-package git
+package loader
 
 import (
 	"bufio"
@@ -10,10 +10,10 @@ import (
 	"github.com/go-git/go-git/v5/storage/memory"
 )
 
-type Git struct{}
+type GitLoader struct{}
 
 // Gitから最新のパスワードファイル(Markdownを取得する)
-func (g *Git) Checkout() ([]string, error) {
+func (g *GitLoader) Load() ([]string, error) {
 	f := memfs.New()
 	repo, err := git.Clone(memory.NewStorage(), f, &git.CloneOptions{
 		URL:           "http://gitbucket.mynet/git/private/password.git",
@@ -39,4 +39,8 @@ func (g *Git) Checkout() ([]string, error) {
 		l = append(l, line)
 	}
 	return l, nil
+}
+
+func NewLoader() Loader {
+	return &GitLoader{}
 }
