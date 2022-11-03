@@ -145,23 +145,24 @@ func (d *Database) Init(mdLines []string) error {
 
 func (d *Database) Serialize() [][]*Password {
 	ret := [][]*Password{}
-	cmap := map[string]*[]*Password{}
+	cmap := map[string][]*Password{}
 	for cname := range d.Categories {
 		passwords := []*Password{}
-		ret = append(ret, passwords)
-		cmap[cname] = &passwords
+		cmap[cname] = passwords
 	}
 	for _, p := range d.Passwords {
 		passwords := cmap[p.Category.Name]
-		*passwords = append(*passwords, p)
+		passwords = append(passwords, p)
 		cmap[p.Category.Name] = passwords
+	}
+	for _, passwords := range cmap {
+		ret = append(ret, passwords)
 	}
 	sort.Slice(ret, func(a int, b int) bool {
 		p1 := ret[a]
 		p2 := ret[b]
 		return p1[0].Category.Name < p2[0].Category.Name
 	})
-	fmt.Printf("ret len: %v", len(ret))
 	return ret
 }
 
