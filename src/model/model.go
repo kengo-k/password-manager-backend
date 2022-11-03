@@ -144,13 +144,17 @@ func (d *Database) Init(mdLines []string) error {
 }
 
 func (d *Database) Serialize() [][]*Password {
+	return serialize(d.Categories, d.Passwords)
+}
+
+func serialize(categories map[string]*Category, passwords map[int]*Password) [][]*Password {
 	ret := [][]*Password{}
 	cmap := map[string][]*Password{}
-	for cname := range d.Categories {
+	for cname := range categories {
 		passwords := []*Password{}
 		cmap[cname] = passwords
 	}
-	for _, p := range d.Passwords {
+	for _, p := range passwords {
 		passwords := cmap[p.Category.Name]
 		passwords = append(passwords, p)
 		cmap[p.Category.Name] = passwords
