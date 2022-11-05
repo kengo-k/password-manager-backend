@@ -85,15 +85,32 @@ func (d *Database) Init(mdLines []string) error {
 		// #で始まるコメント行の場合はカテゴリ名が記載されている
 		if strings.HasPrefix(l, "#") {
 			foundCategory = true
-			_, categoryName, ok := strings.Cut(l, "#")
+			_, categoryLine, ok := strings.Cut(l, "#")
 			if !ok {
-				return fmt.Errorf("failed to get catgory name")
+				return fmt.Errorf("failed to get catgory line")
 			}
+			categoryLine = strings.TrimSpace(categoryLine)
+			categoryId, attrLine, ok := strings.Cut(categoryLine, ":")
+			if !ok {
+				return fmt.Errorf("failed to get categoryId")
+			}
+			attrLine = strings.TrimSpace(attrLine)
+			attrs := strings.Split(attrLine, ",")
+			attrMap := map[string]string{}
+			for _, attr := range attrs {
+				k, v, ok := strings.Cut(attr, "=")
+				if !ok {
+					return fmt.Errorf("failed to parse category attribute")
+				}
+				attrMap[k] = v
+			}
+			fmt.Printf("attr: %s=%s\n", "name", attrMap["name"])
+			fmt.Printf("attr: %s=%s\n", "order", attrMap["order"])
 			c = Category{
-				Name: categoryName,
+				Name: categoryId,
 				Desc: nil,
 			}
-			d.Categories[categoryName] = &c
+			d.Categories[categoryId] = &c
 			continue
 		}
 		if foundCategory {
