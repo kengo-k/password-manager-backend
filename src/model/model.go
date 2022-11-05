@@ -172,16 +172,30 @@ func serialize(categories map[string]*Category, passwords map[int]*Password) [][
 	ret := [][]*Password{}
 	cmap := map[string][]*Password{}
 	for cname := range categories {
-		passwords := []*Password{}
-		cmap[cname] = passwords
+		ps := []*Password{}
+		cmap[cname] = ps
 	}
 	for _, p := range passwords {
-		passwords := cmap[p.Category.ID]
-		passwords = append(passwords, p)
-		cmap[p.Category.ID] = passwords
+		ps := cmap[p.Category.ID]
+		ps = append(ps, p)
+		cmap[p.Category.ID] = ps
 	}
-	for _, passwords := range cmap {
-		ret = append(ret, passwords)
+	ifNil := func(sp *string) string {
+		if sp == nil {
+			return ""
+		}
+		return *sp
+	}
+	getCmpKey := func(p *Password) string {
+		return fmt.Sprintf("%s-%s-%s-%s", p.Name, ifNil(p.User), ifNil(p.Password), ifNil(p.Mail))
+	}
+	for _, ps := range cmap {
+		sort.Slice(ps, func(a int, b int) bool {
+			p1 := ps[a]
+			p2 := ps[b]
+			return getCmpKey(p1) < getCmpKey(p2)
+		})
+		ret = append(ret, ps)
 	}
 	sort.Slice(ret, func(a int, b int) bool {
 		p1 := ret[a]
