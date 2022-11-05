@@ -5,31 +5,28 @@ import (
 )
 
 func TestSerialize(t *testing.T) {
-	p := func(s string) *string {
-		return &s
-	}
 	cat := map[string]*Category{
-		"Cat3": {Name: "Cat3", Desc: p("Desc3")},
-		"Cat7": {Name: "Cat7", Desc: p("Desc7")},
-		"Cat1": {Name: "Cat1", Desc: p("Desc1")},
-		"Cat5": {Name: "Cat5", Desc: p("Desc5")},
-		"Cat2": {Name: "Cat2", Desc: p("Desc2")},
+		"mail":    {ID: "mail", Name: "MAIL", Order: 30},
+		"tech":    {ID: "tech", Name: "TECH", Order: 51},
+		"money":   {ID: "money", Name: "MONEY", Order: 2},
+		"private": {ID: "private", Name: "PRIVATE", Order: 40},
+		"other":   {ID: "other", Name: "OTHER", Order: 5},
 	}
 	pwd := map[int]*Password{
-		100: {Name: "name100", Category: *cat["Cat3"]},
-		101: {Name: "name101", Category: *cat["Cat3"]},
-		102: {Name: "name102", Category: *cat["Cat3"]},
+		100: {Name: "name100", Category: *cat["mail"]},
+		101: {Name: "name101", Category: *cat["mail"]},
+		102: {Name: "name102", Category: *cat["mail"]},
 
-		200: {Name: "name200", Category: *cat["Cat7"]},
-		201: {Name: "name201", Category: *cat["Cat7"]},
+		200: {Name: "name200", Category: *cat["tech"]},
+		201: {Name: "name201", Category: *cat["tech"]},
 
-		300: {Name: "name300", Category: *cat["Cat1"]},
+		300: {Name: "name300", Category: *cat["money"]},
 
-		400: {Name: "name400", Category: *cat["Cat5"]},
-		401: {Name: "name401", Category: *cat["Cat5"]},
+		400: {Name: "name400", Category: *cat["private"]},
+		401: {Name: "name401", Category: *cat["private"]},
 
-		500: {Name: "name500", Category: *cat["Cat2"]},
-		501: {Name: "name501", Category: *cat["Cat2"]},
+		500: {Name: "name500", Category: *cat["other"]},
+		501: {Name: "name501", Category: *cat["other"]},
 	}
 	serialized := serialize(cat, pwd)
 	categorySize := len(serialized)
@@ -42,11 +39,11 @@ func TestSerialize(t *testing.T) {
 		Cat string
 	}
 	table := []Table{
-		{Len: 1, Cat: "Cat1"},
-		{Len: 2, Cat: "Cat2"},
-		{Len: 3, Cat: "Cat3"},
-		{Len: 2, Cat: "Cat5"},
-		{Len: 2, Cat: "Cat7"},
+		{Len: 1, Cat: "MONEY"},
+		{Len: 2, Cat: "OTHER"},
+		{Len: 3, Cat: "MAIL"},
+		{Len: 2, Cat: "PRIVATE"},
+		{Len: 2, Cat: "TECH"},
 	}
 	for i, passwords := range serialized {
 		if len(passwords) == 0 {

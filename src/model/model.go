@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -13,15 +14,15 @@ type CategoryRequest struct {
 }
 
 type Category struct {
-	Name      string    `json:"name"`
-	Desc      *string   `json:"desc"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Order int    `json:"order"`
 }
 
 func (c Category) String() string {
-	return fmt.Sprintf(`{ name: %v, desc: %v, created_at: %v, updated_at: %v }`,
-		ifNil(&c.Name), ifNil(c.Desc), c.CreatedAt, c.UpdatedAt)
+	return fmt.Sprintf(`{ id: %v, name: %v }`,
+		c.ID, c.Name,
+	)
 }
 
 type PasswordRequest struct {
@@ -104,11 +105,14 @@ func (d *Database) Init(mdLines []string) error {
 				}
 				attrMap[k] = v
 			}
-			fmt.Printf("attr: %s=%s\n", "name", attrMap["name"])
-			fmt.Printf("attr: %s=%s\n", "order", attrMap["order"])
+			orderVal, err := strconv.ParseInt(attrMap["order"], 10, 32)
+			if err != nil {
+				return fmt.Errorf("failed to parse category order to number")
+			}
 			c = Category{
-				Name: categoryId,
-				Desc: nil,
+				ID:    categoryId,
+				Name:  attrMap["name"],
+				Order: int(orderVal),
 			}
 			d.Categories[categoryId] = &c
 			continue
@@ -172,9 +176,9 @@ func serialize(categories map[string]*Category, passwords map[int]*Password) [][
 		cmap[cname] = passwords
 	}
 	for _, p := range passwords {
-		passwords := cmap[p.Category.Name]
+		passwords := cmap[p.Category.ID]
 		passwords = append(passwords, p)
-		cmap[p.Category.Name] = passwords
+		cmap[p.Category.ID] = passwords
 	}
 	for _, passwords := range cmap {
 		ret = append(ret, passwords)
@@ -182,7 +186,7 @@ func serialize(categories map[string]*Category, passwords map[int]*Password) [][
 	sort.Slice(ret, func(a int, b int) bool {
 		p1 := ret[a]
 		p2 := ret[b]
-		return p1[0].Category.Name < p2[0].Category.Name
+		return p1[0].Category.Order < p2[0].Category.Order
 	})
 	return ret
 }
@@ -205,13 +209,6 @@ func (d *Database) ConvertMarkdown() []string {
 	// }
 	// return markdown
 	return nil
-}
-
-func ifNil(ps *string) string {
-	if ps == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("\"%s\"", *ps)
 }
 
 func (p Password) String() string {

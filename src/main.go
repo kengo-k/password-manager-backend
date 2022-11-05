@@ -20,6 +20,10 @@ func setupRouter() *gin.Engine {
 	database := model.NewDatabase()
 	database.Init(passwords)
 
+	// TODO 暫定処理 後で消す
+	serializedData := database.Serialize()
+	context.Save(serializedData)
+
 	repo := repo.NewRepository(database)
 
 	r := gin.Default()
