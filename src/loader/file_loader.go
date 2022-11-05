@@ -16,18 +16,18 @@ func (l *FileLoader) Load() ([]string, error) {
 	}
 	defer f.Close()
 
+	lines := make([]string, 1024)
 	reader := bufio.NewReaderSize(f, 1024)
 	for {
-		_, _, err := reader.ReadLine()
+		line, _, err := reader.ReadLine()
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
 			return nil, fmt.Errorf("failed to read from file")
 		}
-		//s := string(line)
-		//fmt.Print(s)
+		lines = append(lines, string(line))
 	}
 
-	return nil, fmt.Errorf("foo")
+	return lines, nil
 }
