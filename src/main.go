@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/kengo-k/password-manager/context"
@@ -14,7 +15,7 @@ func setupRouter() *gin.Engine {
 
 	passwords, err := context.Load()
 	if err != nil {
-		panic("failed to load initial data")
+		panic(fmt.Sprintf("failed to load initial data: %v", err))
 	}
 	database := model.NewDatabase()
 	database.Init(passwords)
