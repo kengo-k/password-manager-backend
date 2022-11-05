@@ -3,7 +3,11 @@
 
 package context
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/kengo-k/password-manager/model"
+)
 
 func init() {
 	fmt.Println("mode: git2git")
@@ -14,7 +18,7 @@ func Load() ([]string, error) {
 	return nil, nil
 }
 
-func Save() error {
+func Save(serializedData [][]*model.Password) error {
 	fmt.Println("save to git")
 	return nil
 }

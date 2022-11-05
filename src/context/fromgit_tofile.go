@@ -7,6 +7,8 @@ import (
 	"fmt"
 
 	"github.com/kengo-k/password-manager/loader"
+	"github.com/kengo-k/password-manager/model"
+	"github.com/kengo-k/password-manager/saver"
 )
 
 func init() {
@@ -22,7 +24,8 @@ func Load() ([]string, error) {
 	return passwords, nil
 }
 
-func Save() error {
-	fmt.Println("save to file")
+func Save(serializedData [][]*model.Password) error {
+	saver := &saver.FileSaver{}
+	saver.Save(serializedData)
 	return nil
 }
