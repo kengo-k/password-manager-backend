@@ -114,7 +114,8 @@ func (d *Database) Init(mdLines []string) error {
 				Name:  attrMap["name"],
 				Order: int(orderVal),
 			}
-			d.Categories[categoryId] = &c
+			c2 := c
+			d.Categories[categoryId] = &c2
 			continue
 		}
 		if foundCategory {

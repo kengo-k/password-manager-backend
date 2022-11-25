@@ -36,5 +36,4 @@ func (s *FileSaver) Save(serializedData [][]*model.Password) {
 	}
 	defer f.Close()
 	f.Write([]byte(sb.String()))
-	fmt.Print(sb.String())
 }

@@ -35,8 +35,8 @@ func setupRouter() *gin.Engine {
 	})
 
 	r.GET("/api/categories", func(c *gin.Context) {
-		// data := repo.FindCategories()
-		// c.PureJSON(http.StatusOK, data)
+		data := repo.FindCategories()
+		c.PureJSON(http.StatusOK, data)
 	})
 
 	r.POST("/api/categories", func(c *gin.Context) {

@@ -24,7 +24,7 @@ func (r *Repository) FindPasswords() []*model.Password {
 }
 
 func (r *Repository) FindCategories() []*model.Category {
-	ret := make([]*model.Category, len(r.database.Categories))
+	ret := []*model.Category{}
 	for _, v := range r.database.Categories {
 		ret = append(ret, v)
 	}
