@@ -59,65 +59,74 @@ func NewDatabase() *Database {
 	}
 }
 
-// 旧形式パスワードを読み込む
-// ※移行が完了したら不要になる
+func splitColumns(line string) []string {
+	ret := []string{}
+	columns := strings.Split(line, "|")
+	for i, column := range columns {
+		if i == 0 || i == len(columns) -1 {
+			continue
+		}
+		column = strings.TrimSpace(column)
+		ret = append(ret, column)
+	}
+	return ret
+}
+
+func getCategory(l string) (*Category, error) {
+	_, categoryLine, ok := strings.Cut(l, "#")
+	if !ok {
+		return nil, fmt.Errorf("failed to get catgory line")
+	}
+	categoryLine = strings.TrimSpace(categoryLine)
+	categoryId, attrLine, ok := strings.Cut(categoryLine, ":")
+	if !ok {
+		return nil, fmt.Errorf("failed to get categoryId")
+	}
+	attrLine = strings.TrimSpace(attrLine)
+	attrs := strings.Split(attrLine, ",")
+	attrMap := map[string]string{}
+	for _, attr := range attrs {
+		k, v, ok := strings.Cut(attr, "=")
+		if !ok {
+			return nil, fmt.Errorf("failed to parse category attribute")
+		}
+		attrMap[k] = v
+	}
+	orderVal, err := strconv.ParseInt(attrMap["order"], 10, 32)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse category order to number")
+	}
+	category := Category{
+		ID:    categoryId,
+		Name:  attrMap["name"],
+		Order: int(orderVal),
+	}
+	return &category, nil
+}
+
 func (d *Database) Init(mdLines []string) error {
 
 	foundCategory := false
 	foundHeader := false
 
-	splitColumns := func(line string) []string {
-		ret := []string{}
-		columns := strings.Split(line, "|")
-		for i, column := range columns {
-			if i == 0 || i == len(columns) -1 {
-				continue
-			}
-			column = strings.TrimSpace(column)
-			ret = append(ret, column)
-		}
-		return ret
-	}
-	var c Category
+	var c *Category
+	var err error
 	pid := 0
+
 	for _, l := range mdLines {
-		// 空行の場合はスキップする
+		// skip empty line
 		if len(l) == 0 {
 			continue
 		}
-		// #で始まるコメント行の場合はカテゴリ名が記載されている
+
+		// line starts with `#` has category info
 		if strings.HasPrefix(l, "#") {
 			foundCategory = true
-			_, categoryLine, ok := strings.Cut(l, "#")
-			if !ok {
-				return fmt.Errorf("failed to get catgory line")
-			}
-			categoryLine = strings.TrimSpace(categoryLine)
-			categoryId, attrLine, ok := strings.Cut(categoryLine, ":")
-			if !ok {
-				return fmt.Errorf("failed to get categoryId")
-			}
-			attrLine = strings.TrimSpace(attrLine)
-			attrs := strings.Split(attrLine, ",")
-			attrMap := map[string]string{}
-			for _, attr := range attrs {
-				k, v, ok := strings.Cut(attr, "=")
-				if !ok {
-					return fmt.Errorf("failed to parse category attribute")
-				}
-				attrMap[k] = v
-			}
-			orderVal, err := strconv.ParseInt(attrMap["order"], 10, 32)
+			c, err = getCategory(l)
 			if err != nil {
-				return fmt.Errorf("failed to parse category order to number")
+				return fmt.Errorf("failed to get category")
 			}
-			c = Category{
-				ID:    categoryId,
-				Name:  attrMap["name"],
-				Order: int(orderVal),
-			}
-			c2 := c
-			d.Categories[categoryId] = &c2
+			d.Categories[c.ID] = c
 			continue
 		}
 		if foundCategory {
@@ -140,7 +149,7 @@ func (d *Database) Init(mdLines []string) error {
 			ID:       pid,
 			Name:     columns[0],
 			Desc:     &columns[1],
-			Category: c,
+			Category: *c,
 			User:     &columns[2],
 			Password: &columns[3],
 			Mail:     &columns[4],
