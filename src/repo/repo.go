@@ -19,7 +19,7 @@ func NewRepository(database *model.Database) *Repository {
 
 func (r *Repository) FindPasswords() []*model.Password {
 	ret := []*model.Password{}
-	for _, v := range r.database.Passwords {
+	for _, v := range r.database.PasswordMap {
 		ret = append(ret, v)
 	}
 	sort.SliceStable(ret, func(i, j int) bool {
@@ -40,24 +40,24 @@ func (r *Repository) FindPasswords() []*model.Password {
 
 func (r *Repository) FindCategories() []*model.Category {
 	ret := []*model.Category{}
-	for _, v := range r.database.Categories {
+	for _, v := range r.database.CategoryMap {
 		ret = append(ret, v)
 	}
 	return ret
 }
 
 func (r *Repository) SavePassword(p *model.Password) {
-	r.database.Passwords[p.ID] = p
+	r.database.PasswordMap[p.ID] = p
 }
 
 func (r *Repository) DeletePassword(p *model.Password) {
-	delete(r.database.Passwords, p.ID)
+	delete(r.database.PasswordMap, p.ID)
 }
 
 func (r *Repository) SaveCategory(cat *model.Category) {
-	r.database.Categories[cat.Name] = cat
+	r.database.CategoryMap[cat.Name] = cat
 }
 
 func (r *Repository) DeleteCategory(cat *model.Category) {
-	delete(r.database.Categories, cat.Name)
+	delete(r.database.CategoryMap, cat.Name)
 }

@@ -8,14 +8,14 @@ import (
 )
 
 type Database struct {
-	Passwords  map[int]*Password
-	Categories map[string]*Category
+	PasswordMap  map[int]*Password
+	CategoryMap map[string]*Category
 }
 
 func NewDatabase() *Database {
 	return &Database{
-		Passwords:  map[int]*Password{},
-		Categories: map[string]*Category{},
+		PasswordMap:  map[int]*Password{},
+		CategoryMap: map[string]*Category{},
 	}
 }
 
@@ -107,7 +107,7 @@ func (d *Database) Init(mdLines []string) error {
 			if err != nil {
 				return fmt.Errorf("failed to get category")
 			}
-			d.Categories[cat.ID] = cat
+			d.CategoryMap[cat.ID] = cat
 			continue
 		}
 
@@ -132,14 +132,14 @@ func (d *Database) Init(mdLines []string) error {
 			Mail:     &columns[4],
 			Note:     &columns[5],
 		}
-		d.Passwords[p.ID] = p
+		d.PasswordMap[p.ID] = p
 	}
 
 	return nil
 }
 
 func (d *Database) Serialize() [][]*Password {
-	return serialize(d.Categories, d.Passwords)
+	return serialize(d.CategoryMap, d.PasswordMap)
 }
 
 func serialize(categories map[string]*Category, passwords map[int]*Password) [][]*Password {
