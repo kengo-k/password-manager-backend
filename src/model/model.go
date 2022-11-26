@@ -104,12 +104,33 @@ func getCategory(l string) (*Category, error) {
 	return &category, nil
 }
 
+type lineContext struct {
+	isCategory bool
+	isHeader bool
+}
+
+func (lc *lineContext) SetCategoryOn() {
+	lc.isCategory = true
+}
+
+func (lc *lineContext) ShouldSkip() bool {
+	if lc.isCategory {
+		lc.isCategory = false
+		lc.isHeader = true
+		return true
+	}
+	if lc.isHeader {
+		lc.isHeader = false
+		return true
+	}
+	return false
+}
+
 func (d *Database) Init(mdLines []string) error {
 
-	foundCategory := false
-	foundHeader := false
+	lineCtx := lineContext{}
 
-	var c *Category
+	var cat *Category
 	var err error
 	pid := 0
 
@@ -121,21 +142,17 @@ func (d *Database) Init(mdLines []string) error {
 
 		// line starts with `#` has category info
 		if strings.HasPrefix(l, "#") {
-			foundCategory = true
-			c, err = getCategory(l)
+			lineCtx.SetCategoryOn()
+			cat, err = getCategory(l)
 			if err != nil {
 				return fmt.Errorf("failed to get category")
 			}
-			d.Categories[c.ID] = c
+			d.Categories[cat.ID] = cat
 			continue
 		}
-		if foundCategory {
-			foundCategory = false
-			foundHeader = true
-			continue
-		}
-		if foundHeader {
-			foundHeader = false
+
+		// if line is header or separator, skip the line
+		if lineCtx.ShouldSkip() {
 			continue
 		}
 
@@ -149,7 +166,7 @@ func (d *Database) Init(mdLines []string) error {
 			ID:       pid,
 			Name:     columns[0],
 			Desc:     &columns[1],
-			Category: *c,
+			Category: *cat,
 			User:     &columns[2],
 			Password: &columns[3],
 			Mail:     &columns[4],
