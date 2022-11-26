@@ -8,14 +8,29 @@ import (
 )
 
 type Database struct {
-	PasswordMap  map[int]*Password
+	PasswordMap map[int]*Password
 	CategoryMap map[string]*Category
+	CategorizedPasswords map[string][]*Password
+}
+
+func (d *Database) GetSortedCategories() []*Category {
+	ret := []*Category{}
+	for _, cat := range d.CategoryMap {
+		ret = append(ret, cat)
+	}
+	sort.SliceStable(ret, func(i, j int) bool {
+		a := ret[i]
+		b := ret[j]
+		return a.Order < b.Order
+	})
+	return ret
 }
 
 func NewDatabase() *Database {
 	return &Database{
 		PasswordMap:  map[int]*Password{},
 		CategoryMap: map[string]*Category{},
+		CategorizedPasswords: map[string][]*Password{},
 	}
 }
 
@@ -108,6 +123,7 @@ func (d *Database) Init(mdLines []string) error {
 				return fmt.Errorf("failed to get category")
 			}
 			d.CategoryMap[cat.ID] = cat
+			d.CategorizedPasswords[cat.ID] = []*Password{}
 			continue
 		}
 
@@ -133,6 +149,9 @@ func (d *Database) Init(mdLines []string) error {
 			Note:     &columns[5],
 		}
 		d.PasswordMap[p.ID] = p
+		pwds := d.CategorizedPasswords[cat.ID]
+		pwds = append(pwds, p)
+		d.CategorizedPasswords[cat.ID] = pwds
 	}
 
 	return nil

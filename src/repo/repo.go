@@ -19,22 +19,16 @@ func NewRepository(database *model.Database) *Repository {
 
 func (r *Repository) FindPasswords() []*model.Password {
 	ret := []*model.Password{}
-	for _, v := range r.database.PasswordMap {
-		ret = append(ret, v)
+	sortedCats := r.database.GetSortedCategories()
+	for _, cat := range sortedCats {
+		pwds := r.database.CategorizedPasswords[cat.ID]
+		sort.SliceStable(pwds, func(i, j int) bool {
+			a := pwds[i]
+			b := pwds[j]
+			return a.Name < b.Name
+		})
+		ret = append(ret, pwds...)
 	}
-	sort.SliceStable(ret, func(i, j int) bool {
-		a := ret[i]
-		b := ret[j]
-		if a.Category.Order < b.Category.Order {
-			return true
-		}
-		if a.Category.Order == b.Category.Order {
-			if a.Name < b.Name {
-				return true
-			}
-		}
-		return false
-	})
 	return ret
 }
 
