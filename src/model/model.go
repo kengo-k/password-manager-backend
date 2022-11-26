@@ -68,11 +68,13 @@ func (d *Database) Init(mdLines []string) error {
 
 	splitColumns := func(line string) []string {
 		ret := []string{}
-		for _, column := range strings.Split(line, "|") {
-			column = strings.TrimSpace(column)
-			if len(column) > 0 {
-				ret = append(ret, column)
+		columns := strings.Split(line, "|")
+		for i, column := range columns {
+			if i == 0 || i == len(columns) -1 {
+				continue
 			}
+			column = strings.TrimSpace(column)
+			ret = append(ret, column)
 		}
 		return ret
 	}
@@ -130,36 +132,21 @@ func (d *Database) Init(mdLines []string) error {
 
 		pid++
 		columns := splitColumns(l)
-		if len(columns) != 5 && len(columns) != 6 {
+		if len(columns) != 6 {
 			return fmt.Errorf("faild to load, invalid column length: %v", len(columns))
 		}
 
-		if len(columns) == 5 {
-			p := &Password{
-				ID:       pid,
-				Name:     columns[0],
-				Desc:     &columns[1],
-				Category: c,
-				User:     &columns[2],
-				Password: &columns[3],
-				Mail:     nil,
-				Note:     &columns[4],
-			}
-			d.Passwords[p.ID] = p
+		p := &Password{
+			ID:       pid,
+			Name:     columns[0],
+			Desc:     &columns[1],
+			Category: c,
+			User:     &columns[2],
+			Password: &columns[3],
+			Mail:     &columns[4],
+			Note:     &columns[5],
 		}
-		if len(columns) == 6 {
-			p := &Password{
-				ID:       pid,
-				Name:     columns[0],
-				Desc:     &columns[1],
-				Category: c,
-				User:     &columns[2],
-				Password: &columns[3],
-				Mail:     &columns[4],
-				Note:     &columns[5],
-			}
-			d.Passwords[p.ID] = p
-		}
+		d.Passwords[p.ID] = p
 	}
 
 	return nil
