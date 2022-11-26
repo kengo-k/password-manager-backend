@@ -1,6 +1,8 @@
 package repo
 
 import (
+	"sort"
+
 	"github.com/kengo-k/password-manager/model"
 )
 
@@ -20,6 +22,19 @@ func (r *Repository) FindPasswords() []*model.Password {
 	for _, v := range r.database.Passwords {
 		ret = append(ret, v)
 	}
+	sort.SliceStable(ret, func(i, j int) bool {
+		a := ret[i]
+		b := ret[j]
+		if a.Category.Order < b.Category.Order {
+			return true
+		}
+		if a.Category.Order == b.Category.Order {
+			if a.Name < b.Name {
+				return true
+			}
+		}
+		return false
+	})
 	return ret
 }
 
