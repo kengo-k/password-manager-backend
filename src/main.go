@@ -39,30 +39,22 @@ func setupRouter() *gin.Engine {
 		c.PureJSON(http.StatusOK, data)
 	})
 
-	r.POST("/api/categories", func(c *gin.Context) {
-		// var cat model.Category
-		// if c.ShouldBind(&cat) == nil {
-		// 	// 入力チェック
-		// 	if cat.Name == nil {
-		// 		panic("category name is required")
-		// 	}
-		// 	if cat.ID == nil {
-		// 		newID, err := uuid.NewUUID()
-		// 		if err != nil {
-		// 			panic("failed to create new category id")
-		// 		}
-		// 		id := newID.String()
-		// 		cat.ID = &id
-		// 		now := time.Now()
-		// 		cat.CreatedAt = &now
-		// 		cat.UpdatedAt = &now
-		// 		repo.SaveCategory(&cat)
-		// 		c.PureJSON(http.StatusOK, map[string]any{})
-		// 		return
-		// 	}
-		// }
-		// // 想定外のエラー
-		// panic("failed to create category")
+	r.PUT("/api/categories/:id", func(c *gin.Context) {
+		catID := c.Param("id")
+		var req model.CategoryUpdateRequest
+		if c.ShouldBind(&req) == nil {
+			cat := repo.GetCategory(catID)
+			if cat != nil {
+				if req.Name != nil {
+					cat.Name = *req.Name
+				}
+				if req.Order != nil {
+					cat.Order = *req.Order
+				}
+				repo.SaveCategory(cat)
+			}
+			c.PureJSON(http.StatusOK, cat)
+		}
 	})
 
 	r.POST("/api/passwords", func(c *gin.Context) {

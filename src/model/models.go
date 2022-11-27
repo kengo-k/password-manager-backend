@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-type CategoryRequest struct {
-	Name string  `form:"name"`
-	Desc *string `form:"desc"`
+type CategoryUpdateRequest struct {
+	Name *string  `form:"name"`
+	Order *int `form:"order"`
 }
 
 type Category struct {
