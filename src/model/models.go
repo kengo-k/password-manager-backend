@@ -35,7 +35,7 @@ type Password struct {
 	ID        int      `json:"id"`
 	Name      string   `json:"name"`
 	Desc      *string  `json:"desc"`
-	Category  Category `json:"category"`
+	Category  *Category `json:"category"`
 	User      *string  `json:"user"`
 	Password  *string  `json:"password"`
 	Mail      *string  `json:"mail"`

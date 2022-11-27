@@ -13,20 +13,20 @@ func TestSerialize(t *testing.T) {
 		"other":   {ID: "other", Name: "OTHER", Order: 5},
 	}
 	pwd := map[int]*Password{
-		100: {Name: "name100", Category: *cat["mail"]},
-		101: {Name: "name101", Category: *cat["mail"]},
-		102: {Name: "name102", Category: *cat["mail"]},
+		100: {Name: "name100", Category: cat["mail"]},
+		101: {Name: "name101", Category: cat["mail"]},
+		102: {Name: "name102", Category: cat["mail"]},
 
-		200: {Name: "name200", Category: *cat["tech"]},
-		201: {Name: "name201", Category: *cat["tech"]},
+		200: {Name: "name200", Category: cat["tech"]},
+		201: {Name: "name201", Category: cat["tech"]},
 
-		300: {Name: "name300", Category: *cat["money"]},
+		300: {Name: "name300", Category: cat["money"]},
 
-		400: {Name: "name400", Category: *cat["private"]},
-		401: {Name: "name401", Category: *cat["private"]},
+		400: {Name: "name400", Category: cat["private"]},
+		401: {Name: "name401", Category: cat["private"]},
 
-		500: {Name: "name500", Category: *cat["other"]},
-		501: {Name: "name501", Category: *cat["other"]},
+		500: {Name: "name500", Category: cat["other"]},
+		501: {Name: "name501", Category: cat["other"]},
 	}
 	serialized := serialize(cat, pwd)
 	categorySize := len(serialized)
