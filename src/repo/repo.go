@@ -49,7 +49,11 @@ func (r *Repository) DeletePassword(p *model.Password) {
 }
 
 func (r *Repository) SaveCategory(cat *model.Category) {
-	r.database.CategoryMap[cat.Name] = cat
+	r.database.CategoryMap[cat.ID] = cat
+}
+
+func (r *Repository) GetCategory(id string) *model.Category {
+	return r.database.CategoryMap[id]
 }
 
 func (r *Repository) DeleteCategory(cat *model.Category) {
