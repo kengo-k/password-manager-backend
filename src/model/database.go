@@ -142,7 +142,7 @@ func (d *Database) Init(mdLines []string) error {
 			ID:       pid,
 			Name:     columns[0],
 			Desc:     &columns[1],
-			Category: *cat,
+			Category: cat,
 			User:     &columns[2],
 			Password: &columns[3],
 			Mail:     &columns[4],
