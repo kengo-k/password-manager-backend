@@ -1,0 +1,15 @@
+name: test
+on:
+  push:
+    branches:
+      - f/9
+jobs:
+  run-test:
+    runs-on: ubuntu-latest
+    container:
+      image: go:1.19.3-alpine
+    steps:
+      - name: run go test
+        run: |
+          cd src
+          go run -tags file2file ./main.go
