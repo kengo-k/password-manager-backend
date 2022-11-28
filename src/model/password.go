@@ -18,23 +18,39 @@ type Password struct {
 
 // request model for password creation
 type PasswordCreateRequest struct {
-	Name       *string `form:"name"`
-	Desc       *string `form:"desc"`
-	CategoryID *string `form:"category_id"`
-	User       *string `form:"user"`
-	Password   *string `form:"password"`
-	Mail       *string `form:"mail"`
-	Note       *string `form:"note"`
+	Name       *string `json:"name"`
+	Desc       *string `json:"desc"`
+	CategoryID *string `json:"category_id"`
+	User       *string `json:"user"`
+	Password   *string `json:"password"`
+	Mail       *string `json:"mail"`
+	Note       *string `json:"note"`
 }
 
 // request model for password update
 type PasswordUpdateRequest struct {
-	ID         int     `form:"id"`
-	Name       *string `form:"name"`
-	Desc       *string `form:"desc"`
-	CategoryID *string `form:"category_id"`
-	User       *string `form:"user"`
-	Password   *string `form:"password"`
-	Mail       *string `form:"mail"`
-	Note       *string `form:"note"`
+	ID         int     `json:"id"`
+	Name       *string `json:"name"`
+	Desc       *string `json:"desc"`
+	CategoryID *string `json:"category_id"`
+	User       *string `json:"user"`
+	Password   *string `json:"password"`
+	Mail       *string `json:"mail"`
+	Note       *string `json:"note"`
+}
+
+// set new value to password without category
+func (pwd *Password) ApplyUpdateValues(req *PasswordUpdateRequest) {
+	setNewValue(req.Name, &pwd.Name)
+	setNewValue(req.Desc, pwd.Desc)
+	setNewValue(req.User, pwd.User)
+	setNewValue(req.Password, pwd.Password)
+	setNewValue(req.Mail, pwd.Mail)
+	setNewValue(req.Note, pwd.Note)
+}
+
+func setNewValue(src *string, dest *string) {
+	if src != nil {
+		*dest = *src
+	}
 }

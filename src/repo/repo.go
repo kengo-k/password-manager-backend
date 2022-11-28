@@ -32,6 +32,10 @@ func (r *Repository) FindPasswords() []*model.Password {
 	return ret
 }
 
+func (r *Repository) GetPassword(id int) *model.Password {
+	return r.database.PasswordMap[id]
+}
+
 func (r *Repository) FindCategories() []*model.Category {
 	ret := []*model.Category{}
 	for _, v := range r.database.CategoryMap {

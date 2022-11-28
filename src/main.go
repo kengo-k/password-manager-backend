@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/kengo-k/password-manager/context"
 
@@ -32,6 +33,40 @@ func setupRouter() *gin.Engine {
 	r.GET("/api/passwords", func(c *gin.Context) {
 		data := repo.FindPasswords()
 		c.PureJSON(http.StatusOK, data)
+	})
+
+	r.PUT("/api/passwords/:id", func(c *gin.Context) {
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			// TODO return error response (fix in another task)
+			panic("failed to convert id to number")
+		}
+
+		var req model.PasswordUpdateRequest
+		if c.ShouldBind(&req) != nil {
+			// TODO return error response (fix in another task)
+			panic("failed to bind update params")
+		}
+		pwd := repo.GetPassword(id)
+		if pwd == nil {
+			// TODO return error response (fix in another task)
+			panic("failed to get password")
+		}
+
+		// if pwd's category_id !=  req's category_id,
+		// apply category change
+		if req.CategoryID != nil && pwd.Category.ID != *req.CategoryID {
+			newCat := repo.GetCategory(*req.CategoryID)
+			if newCat == nil {
+				// TODO return error response (fix in another task)
+				panic("failed to get category")
+			}
+			pwd.Category = newCat
+		}
+		pwd.ApplyUpdateValues(&req)
+		repo.SavePassword(pwd)
+		c.PureJSON(http.StatusOK, pwd)
 	})
 
 	r.GET("/api/categories", func(c *gin.Context) {
