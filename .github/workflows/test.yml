@@ -16,4 +16,4 @@ jobs:
         run:
           cd repo/src
           go mod tidy
-          go run -tags file2file ./main.go
+          go test ./...
