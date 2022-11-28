@@ -1,0 +1,20 @@
+name: test
+on:
+  push:
+    branches:
+      - f/9
+jobs:
+  run-test:
+    runs-on: ubuntu-latest
+    container:
+      image: golang:1.19.3-alpine
+    steps:
+      - name: clone repository
+        uses: actions/checkout@v3
+        with:
+          path: repo
+      - name: run go test
+        run:
+          cd repo/src
+          go mod tidy
+          go run -tags file2file ./main.go
