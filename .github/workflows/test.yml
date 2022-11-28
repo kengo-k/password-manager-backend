@@ -9,9 +9,12 @@ jobs:
     container:
       image: golang:1.19.3-alpine
     steps:
+      - name: clone repository
+        uses: actions/checkout@v3
+        with:
+          path: repo
       - name: run go test
-        run: |
-          git clone https://github.com/kengo-k/password-manager-backend
-          cd password-manager-backend/src
+        run:
+          cd repo/src
           go mod tidy
           go run -tags file2file ./main.go
