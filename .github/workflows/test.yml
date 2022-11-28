@@ -11,5 +11,7 @@ jobs:
     steps:
       - name: run go test
         run: |
-          cd src
+          git clone https://github.com/kengo-k/password-manager-backend
+          cd password-manager-backend/src
+          go mod tidy
           go run -tags file2file ./main.go
