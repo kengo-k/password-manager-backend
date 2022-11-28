@@ -1,8 +1,7 @@
 name: test
 on:
   push:
-    branches:
-      - f/9
+
 jobs:
   run-test:
     runs-on: ubuntu-latest
