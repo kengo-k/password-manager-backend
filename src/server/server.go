@@ -26,12 +26,17 @@ func NewServer(service *Service) *gin.Engine {
 }
 
 func NewService() *Service {
+	// load data
 	passwords, err := context.Load()
 	if err != nil {
 		panic(fmt.Sprintf("failed to load initial data: %v", err))
 	}
+
+	// init database
 	database := model.NewDatabase()
-	database.Init(passwords)
+	if err := database.Init(passwords); err != nil {
+		panic(fmt.Sprintf("failed to init database: %v", err))
+	}
 
 	// TODO 暫定処理 後で消す
 	serializedData := database.Serialize()
@@ -66,23 +71,17 @@ func (service *Service) UpdatePassword(c *gin.Context) {
 		panic("failed to get password")
 	}
 
-	// if pwd's category_id !=  req's category_id,
-	// apply category change
-	if req.CategoryID != nil && pwd.Category.ID != *req.CategoryID {
-		newCat := repo.GetCategory(*req.CategoryID)
-		if newCat == nil {
-			// TODO return error response (fix in another task)
-			panic("failed to get category")
-		}
-		pwd.Category = newCat
+	err = req.Validate(pwd, repo.GetCategories())
+	if err != nil {
+		// TODO return error response (fix in another task)
+		panic("failed to validate update request")
 	}
-	pwd.ApplyUpdateValues(&req)
 	repo.SavePassword(pwd)
 	c.PureJSON(http.StatusOK, pwd)
 }
 
 func (service *Service) GetCategoryList(c *gin.Context) {
-	data := service.repo.FindCategories()
+	data := service.repo.GetCategories()
 	c.PureJSON(http.StatusOK, data)
 }
 
@@ -106,4 +105,21 @@ func (service *Service) UpdateCategory(c *gin.Context) {
 }
 
 func (service *Service) CreatePassword(c *gin.Context) {
+	repo := service.repo
+
+	var req model.PasswordCreateRequest
+	if c.ShouldBind(&req) != nil {
+		// TODO return error response (fix in another task)
+		panic("failed to bind create params")
+	}
+
+	pwd, err := req.Validate(repo.GetCategories())
+	if err != nil {
+		// TODO return error response (fix in another task)
+		panic("failed to validate create params")
+	}
+
+	pwd.ID = repo.GetNextPasswordId()
+	repo.SavePassword(pwd)
+	c.PureJSON(http.StatusOK, pwd)
 }
