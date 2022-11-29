@@ -36,16 +36,19 @@ func (r *Repository) GetPassword(id int) *model.Password {
 	return r.database.PasswordMap[id]
 }
 
-func (r *Repository) FindCategories() []*model.Category {
-	ret := []*model.Category{}
-	for _, v := range r.database.CategoryMap {
-		ret = append(ret, v)
-	}
-	return ret
+func (r *Repository) GetNextPasswordId() int {
+	return r.database.GetNextPasswordId()
+}
+
+func (r *Repository) GetCategories() map[string]*model.Category {
+	return r.database.CategoryMap
 }
 
 func (r *Repository) SavePassword(p *model.Password) {
 	r.database.PasswordMap[p.ID] = p
+	pwds := r.database.CategorizedPasswords[p.Category.ID]
+	pwds = append(pwds, p)
+	r.database.CategorizedPasswords[p.Category.ID] = pwds
 }
 
 func (r *Repository) DeletePassword(p *model.Password) {

@@ -17,14 +17,15 @@ func TestApplyUpdateValues(t *testing.T) {
 		Mail:     getStrPointer("mail"),
 		Note:     getStrPointer("note"),
 	}
-	pwd.ApplyUpdateValues(&PasswordUpdateRequest{
+	req := PasswordUpdateRequest{
 		Name:     getStrPointer("new name"),
 		Desc:     getStrPointer("new desc"),
 		User:     getStrPointer("new user"),
 		Password: getStrPointer("new password"),
 		Mail:     getStrPointer("new mail"),
 		Note:     getStrPointer("new note"),
-	})
+	}
+	req.ApplyValuesWithoutCategory(&pwd)
 	if pwd.Name != "new name" {
 		t.Errorf("got: %v, expected: %v", pwd.Name, "new name")
 	}

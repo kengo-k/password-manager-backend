@@ -8,9 +8,15 @@ import (
 )
 
 type Database struct {
-	PasswordMap map[int]*Password
-	CategoryMap map[string]*Category
+	maxPasswordId        int
+	PasswordMap          map[int]*Password
+	CategoryMap          map[string]*Category
 	CategorizedPasswords map[string][]*Password
+}
+
+func (d *Database) GetNextPasswordId() int {
+	d.maxPasswordId++
+	return d.maxPasswordId
 }
 
 func (d *Database) GetSortedCategories() []*Category {
@@ -28,8 +34,8 @@ func (d *Database) GetSortedCategories() []*Category {
 
 func NewDatabase() *Database {
 	return &Database{
-		PasswordMap:  map[int]*Password{},
-		CategoryMap: map[string]*Category{},
+		PasswordMap:          map[int]*Password{},
+		CategoryMap:          map[string]*Category{},
 		CategorizedPasswords: map[string][]*Password{},
 	}
 }
@@ -38,7 +44,7 @@ func splitColumns(line string) []string {
 	ret := []string{}
 	columns := strings.Split(line, "|")
 	for i, column := range columns {
-		if i == 0 || i == len(columns) -1 {
+		if i == 0 || i == len(columns)-1 {
 			continue
 		}
 		column = strings.TrimSpace(column)
@@ -81,7 +87,7 @@ func getCategory(l string) (*Category, error) {
 
 type lineContext struct {
 	isCategory bool
-	isHeader bool
+	isHeader   bool
 }
 
 func (lc *lineContext) SetCategoryOn() {
@@ -107,7 +113,6 @@ func (d *Database) Init(mdLines []string) error {
 
 	var cat *Category
 	var err error
-	pid := 0
 
 	for _, l := range mdLines {
 		// skip empty line
@@ -132,14 +137,13 @@ func (d *Database) Init(mdLines []string) error {
 			continue
 		}
 
-		pid++
 		columns := splitColumns(l)
 		if len(columns) != 6 {
 			return fmt.Errorf("faild to load, invalid column length: %v", len(columns))
 		}
 
 		p := &Password{
-			ID:       pid,
+			ID:       d.GetNextPasswordId(),
 			Name:     columns[0],
 			Desc:     &columns[1],
 			Category: cat,
