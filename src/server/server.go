@@ -71,17 +71,11 @@ func (service *Service) UpdatePassword(c *gin.Context) {
 		panic("failed to get password")
 	}
 
-	// if pwd's category_id !=  req's category_id,
-	// apply category change
-	if req.CategoryID != nil && pwd.Category.ID != *req.CategoryID {
-		newCat := repo.GetCategory(*req.CategoryID)
-		if newCat == nil {
-			// TODO return error response (fix in another task)
-			panic("failed to get category")
-		}
-		pwd.Category = newCat
+	err = req.Validate(pwd, repo.GetCategories())
+	if err != nil {
+		// TODO return error response (fix in another task)
+		panic("failed to validate update request")
 	}
-	req.ApplyValuesWithoutCategory(pwd)
 	repo.SavePassword(pwd)
 	c.PureJSON(http.StatusOK, pwd)
 }

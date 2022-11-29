@@ -67,14 +67,21 @@ type PasswordUpdateRequest struct {
 	Note       *string `json:"note"`
 }
 
-// set new value to password without category
-func (req *PasswordUpdateRequest) ApplyValuesWithoutCategory(pwd *Password) {
+func (req *PasswordUpdateRequest) Validate(pwd *Password, cmap map[string]*Category) error {
 	setNewValue(req.Name, &pwd.Name)
 	setNewValue(req.Desc, pwd.Desc)
 	setNewValue(req.User, pwd.User)
 	setNewValue(req.Password, pwd.Password)
 	setNewValue(req.Mail, pwd.Mail)
 	setNewValue(req.Note, pwd.Note)
+	if req.CategoryID != nil {
+		cat, ok := cmap[*req.CategoryID]
+		if !ok {
+			return fmt.Errorf("category %v is not exists", req.CategoryID)
+		}
+		pwd.Category = cat
+	}
+	return nil
 }
 
 func setNewValue(src *string, dest *string) {
