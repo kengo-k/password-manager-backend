@@ -46,9 +46,11 @@ func (r *Repository) GetCategories() map[string]*model.Category {
 
 func (r *Repository) SavePassword(p *model.Password) {
 	r.database.PasswordMap[p.ID] = p
-	pwds := r.database.CategorizedPasswords[p.Category.ID]
-	pwds = append(pwds, p)
-	r.database.CategorizedPasswords[p.Category.ID] = pwds
+	if _, ok := r.database.PasswordMap[p.ID]; !ok {
+		pwds := r.database.CategorizedPasswords[p.Category.ID]
+		pwds = append(pwds, p)
+		r.database.CategorizedPasswords[p.Category.ID] = pwds
+	}
 }
 
 func (r *Repository) DeletePassword(p *model.Password) {
