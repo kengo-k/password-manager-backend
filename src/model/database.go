@@ -19,19 +19,6 @@ func (d *Database) GetNextPasswordId() int {
 	return d.maxPasswordId
 }
 
-func (d *Database) GetSortedCategories() []*Category {
-	ret := []*Category{}
-	for _, cat := range d.CategoryMap {
-		ret = append(ret, cat)
-	}
-	sort.SliceStable(ret, func(i, j int) bool {
-		a := ret[i]
-		b := ret[j]
-		return a.Order < b.Order
-	})
-	return ret
-}
-
 func NewDatabase() *Database {
 	return &Database{
 		PasswordMap:          map[int]*Password{},
@@ -200,24 +187,4 @@ func serialize(categories map[string]*Category, passwords map[int]*Password) [][
 		return p1[0].Category.Order < p2[0].Category.Order
 	})
 	return ret
-}
-
-func (d *Database) ConvertMarkdown() []string {
-	// markdown := []string{}
-	// for categoryName, categoryPasswords := range passwords {
-	// 	head := categoryPasswords[0]
-	// 	categoryLine := fmt.Sprintf("# %s: %s", categoryName, *head.Category.Desc)
-	// 	headerLine := "|id|name|desc|user|password|mail|note|"
-	// 	separatorLine := "|---|---|---|---|---|---|---|"
-	// 	markdown = append(markdown, categoryLine)
-	// 	markdown = append(markdown, headerLine)
-	// 	markdown = append(markdown, separatorLine)
-	// 	for _, pwd := range categoryPasswords {
-	// 		line := fmt.Sprintf("|%v|%v|%v|%v|%v|%v|%v|",
-	// 			pwd.ID, pwd.Name, *pwd.Desc, *pwd.User, *pwd.Password, *pwd.Mail, *pwd.Note)
-	// 		markdown = append(markdown, line)
-	// 	}
-	// }
-	// return markdown
-	return nil
 }

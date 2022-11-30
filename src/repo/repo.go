@@ -17,11 +17,24 @@ func NewRepository(database *model.Database) *Repository {
 	return r
 }
 
-func (r *Repository) FindPasswords() []*model.Password {
+func (repo *Repository) GetSortedCategories() []*model.Category {
+	ret := []*model.Category{}
+	for _, cat := range repo.database.CategoryMap {
+		ret = append(ret, cat)
+	}
+	sort.SliceStable(ret, func(i, j int) bool {
+		a := ret[i]
+		b := ret[j]
+		return a.Order < b.Order
+	})
+	return ret
+}
+
+func (repo *Repository) FindPasswords() []*model.Password {
 	ret := []*model.Password{}
-	sortedCats := r.database.GetSortedCategories()
+	sortedCats := repo.GetSortedCategories()
 	for _, cat := range sortedCats {
-		pwds := r.database.CategorizedPasswords[cat.ID]
+		pwds := repo.database.CategorizedPasswords[cat.ID]
 		sort.SliceStable(pwds, func(i, j int) bool {
 			a := pwds[i]
 			b := pwds[j]
@@ -32,39 +45,43 @@ func (r *Repository) FindPasswords() []*model.Password {
 	return ret
 }
 
-func (r *Repository) GetPassword(id int) *model.Password {
-	return r.database.PasswordMap[id]
+func (repo *Repository) GetPassword(id int) *model.Password {
+	return repo.database.PasswordMap[id]
 }
 
-func (r *Repository) GetNextPasswordId() int {
-	return r.database.GetNextPasswordId()
+func (repo *Repository) GetNextPasswordId() int {
+	return repo.database.GetNextPasswordId()
 }
 
-func (r *Repository) GetCategories() map[string]*model.Category {
-	return r.database.CategoryMap
+func (repo *Repository) GetCategories() map[string]*model.Category {
+	return repo.database.CategoryMap
 }
 
-func (r *Repository) SavePassword(p *model.Password) {
-	r.database.PasswordMap[p.ID] = p
-	if _, ok := r.database.PasswordMap[p.ID]; !ok {
-		pwds := r.database.CategorizedPasswords[p.Category.ID]
+func (repo *Repository) SavePassword(p *model.Password) {
+	if _, ok := repo.database.PasswordMap[p.ID]; !ok {
+		pwds := repo.database.CategorizedPasswords[p.Category.ID]
 		pwds = append(pwds, p)
-		r.database.CategorizedPasswords[p.Category.ID] = pwds
+		repo.database.CategorizedPasswords[p.Category.ID] = pwds
 	}
+	repo.database.PasswordMap[p.ID] = p
 }
 
-func (r *Repository) DeletePassword(p *model.Password) {
-	delete(r.database.PasswordMap, p.ID)
+func (repo *Repository) DeletePassword(p *model.Password) {
+	delete(repo.database.PasswordMap, p.ID)
 }
 
-func (r *Repository) SaveCategory(cat *model.Category) {
-	r.database.CategoryMap[cat.ID] = cat
+func (repo *Repository) SaveCategory(cat *model.Category) {
+	repo.database.CategoryMap[cat.ID] = cat
 }
 
-func (r *Repository) GetCategory(id string) *model.Category {
-	return r.database.CategoryMap[id]
+func (repo *Repository) GetCategory(id string) *model.Category {
+	return repo.database.CategoryMap[id]
 }
 
-func (r *Repository) DeleteCategory(cat *model.Category) {
-	delete(r.database.CategoryMap, cat.Name)
+func (repo *Repository) DeleteCategory(cat *model.Category) {
+	delete(repo.database.CategoryMap, cat.Name)
+}
+
+func (repo *Repository) Serialize() [][]*model.Password {
+	return repo.database.Serialize()
 }
