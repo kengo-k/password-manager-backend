@@ -4,6 +4,8 @@ go 1.19
 
 require github.com/gin-gonic/gin v1.8.1
 
+require github.com/joho/godotenv v1.4.0
+
 require (
 	github.com/Microsoft/go-winio v0.4.16 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20210428141323-04723f9f07d7 // indirect
