@@ -1,5 +1,5 @@
 dev:
-	cd src && go run -tags file2file ./main.go
+	cd src && go run -tags git2git ./main.go
 
 test:
 	cd src && go test -v -cover ./...
