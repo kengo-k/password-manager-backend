@@ -2,21 +2,11 @@ package server
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"os"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-git/go-billy/v5/memfs"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/object"
-	githttp "github.com/go-git/go-git/v5/plumbing/transport/http"
-	"github.com/go-git/go-git/v5/storage/memory"
 	"github.com/kengo-k/password-manager/context"
-	"github.com/kengo-k/password-manager/env"
 	"github.com/kengo-k/password-manager/model"
 	"github.com/kengo-k/password-manager/repo"
 )
@@ -132,60 +122,7 @@ func (service *Service) CreatePassword(c *gin.Context) {
 }
 
 func (service *Service) Publish(c *gin.Context) {
-
-	config := env.GetConfig()
-
 	pwds := service.repo.Serialize()
 	context.Save(pwds)
-
-	pwdFile, err := os.Open(config.PasswordFile)
-	// 読み取り時の例外処理
-	if err != nil {
-		panic("failed to open password file")
-	}
-	defer pwdFile.Close()
-
-	contents, err := ioutil.ReadAll(pwdFile)
-	if err != nil {
-		panic("failed to read password file")
-	}
-
-	f := memfs.New()
-	repo, err := git.Clone(memory.NewStorage(), f, &git.CloneOptions{
-		URL:           config.RepositoryURL,
-		ReferenceName: plumbing.ReferenceName("refs/heads/master"),
-	})
-	if err != nil {
-		// TODO return error response
-		panic(fmt.Sprintf("failed to clone: %v", err))
-	}
-	w, err := repo.Worktree()
-	if err != nil {
-		// TODO return error response
-		panic("failed to get work tree")
-	}
-	file, err := w.Filesystem.Create(config.PasswordFile)
-	if err != nil {
-		panic("failed to create new file in file system")
-	}
-	defer file.Close()
-	file.Write(contents)
-	w.Add(config.PasswordFile)
-	w.Commit("commit by password manager", &git.CommitOptions{
-		Author: &object.Signature{
-			Name:  "password-manager",
-			Email: "test@example.com",
-			When:  time.Now(),
-		},
-	})
-
-	auth := &githttp.BasicAuth{
-		Username: config.RepositoryUser,
-		Password: config.RepositoryPass,
-	}
-	err = repo.Push(&git.PushOptions{Auth: auth})
-	if err != nil {
-		panic(fmt.Sprintf("failed to push: %v", err))
-	}
 	c.PureJSON(http.StatusOK, map[string]bool{"success": true})
 }
