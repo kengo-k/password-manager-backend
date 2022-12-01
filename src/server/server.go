@@ -73,6 +73,9 @@ func (service *Service) UpdatePassword(c *gin.Context) {
 		// TODO return error response (fix in another task)
 		panic("failed to validate update request")
 	}
+
+	// TODO 変更が一切ないデータが来た場合はcommitしたくないので変更が存在する場合のみSaveする
+
 	repo.SavePassword(pwd)
 	c.PureJSON(http.StatusOK, pwd)
 }
@@ -122,7 +125,12 @@ func (service *Service) CreatePassword(c *gin.Context) {
 }
 
 func (service *Service) Publish(c *gin.Context) {
+	if !service.repo.IsDirty() {
+		c.PureJSON(http.StatusAccepted, map[string]bool{"success": false})
+		return
+	}
 	pwds := service.repo.Serialize()
 	context.Save(pwds)
+	service.repo.SetClean()
 	c.PureJSON(http.StatusOK, map[string]bool{"success": true})
 }

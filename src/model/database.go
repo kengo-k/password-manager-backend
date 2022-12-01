@@ -8,6 +8,7 @@ import (
 )
 
 type Database struct {
+	dirty                bool
 	maxPasswordId        int
 	PasswordMap          map[int]*Password
 	CategoryMap          map[string]*Category
@@ -19,8 +20,17 @@ func (d *Database) GetNextPasswordId() int {
 	return d.maxPasswordId
 }
 
+func (d *Database) SetDirty(dirty bool) {
+	d.dirty = dirty
+}
+
+func (d *Database) IsDirty() bool {
+	return d.dirty
+}
+
 func NewDatabase() *Database {
 	return &Database{
+		dirty:                false,
 		PasswordMap:          map[int]*Password{},
 		CategoryMap:          map[string]*Category{},
 		CategorizedPasswords: map[string][]*Password{},
