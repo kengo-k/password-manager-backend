@@ -171,7 +171,7 @@ func serialize(categories map[string]*Category, passwords map[int]*Password) [][
 		return *sp
 	}
 	getCmpKey := func(p *Password) string {
-		return fmt.Sprintf("%s-%s-%s-%s", p.Name, ifNil(p.User), ifNil(p.Password), ifNil(p.Mail))
+		return fmt.Sprintf("%s-%s-%s-%s-%s", p.Name, ifNil(p.Desc), ifNil(p.User), ifNil(p.Password), ifNil(p.Mail))
 	}
 	for _, ps := range cmap {
 		sort.Slice(ps, func(a int, b int) bool {
