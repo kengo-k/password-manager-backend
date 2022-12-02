@@ -74,8 +74,10 @@ func (service *Service) DeletePassword(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		// TODO return error response (fix in another task)
-		panic("failed to convert id to number")
+		c.PureJSON(http.StatusBadRequest, map[string]string{
+			"message": fmt.Sprintf("failed to delete, id: `%v` is not a number", idStr),
+		})
+		return
 	}
 	pwd := repo.GetPassword(id)
 	if pwd == nil {
