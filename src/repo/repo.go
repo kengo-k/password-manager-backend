@@ -64,6 +64,14 @@ func (repo *Repository) SavePassword(p *model.Password) {
 // delete password from database
 func (repo *Repository) DeletePassword(p *model.Password) {
 	delete(repo.database.PasswordMap, p.ID)
+	pwds := repo.database.CategorizedPasswords[p.Category.ID]
+	newPwds := []*model.Password{}
+	for _, pwd := range pwds {
+		if pwd.ID != p.ID {
+			newPwds = append(newPwds, pwd)
+		}
+	}
+	repo.database.CategorizedPasswords[p.Category.ID] = newPwds
 	repo.database.SetDirty(true)
 }
 
