@@ -20,6 +20,7 @@ func NewServer(service *Service) *gin.Engine {
 	server.GET("/api/passwords", service.GetPasswordList)
 	server.PUT("/api/passwords/:id", service.UpdatePassword)
 	server.POST("/api/passwords", service.CreatePassword)
+	server.DELETE("/api/passwords/:id", service.DeletePassword)
 	server.GET("/api/categories", service.GetCategoryList)
 	server.PUT("/api/categories/:id", service.UpdateCategory)
 	server.POST("/api/passwords/publish", service.Publish)
@@ -46,6 +47,45 @@ func NewService() *Service {
 func (service *Service) GetPasswordList(c *gin.Context) {
 	data := service.repo.FindPasswords()
 	c.PureJSON(http.StatusOK, data)
+}
+
+func (service *Service) CreatePassword(c *gin.Context) {
+	repo := service.repo
+
+	var req model.PasswordCreateRequest
+	if c.ShouldBind(&req) != nil {
+		// TODO return error response (fix in another task)
+		panic("failed to bind create params")
+	}
+
+	pwd, err := req.Validate(repo.GetCategories())
+	if err != nil {
+		// TODO return error response (fix in another task)
+		panic("failed to validate create params")
+	}
+
+	pwd.ID = repo.GetNextPasswordId()
+	repo.SavePassword(pwd)
+	c.PureJSON(http.StatusOK, pwd)
+}
+
+func (service *Service) DeletePassword(c *gin.Context) {
+	repo := service.repo
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		// TODO return error response (fix in another task)
+		panic("failed to convert id to number")
+	}
+	pwd := repo.GetPassword(id)
+	if pwd == nil {
+		c.PureJSON(http.StatusNotFound, map[string]string{
+			"message": fmt.Sprintf("failed to delete, id: `%v` was not found", id),
+		})
+		return
+	}
+	repo.DeletePassword(pwd)
+	c.PureJSON(http.StatusOK, pwd)
 }
 
 func (service *Service) UpdatePassword(c *gin.Context) {
@@ -102,26 +142,6 @@ func (service *Service) UpdateCategory(c *gin.Context) {
 		}
 		c.PureJSON(http.StatusOK, cat)
 	}
-}
-
-func (service *Service) CreatePassword(c *gin.Context) {
-	repo := service.repo
-
-	var req model.PasswordCreateRequest
-	if c.ShouldBind(&req) != nil {
-		// TODO return error response (fix in another task)
-		panic("failed to bind create params")
-	}
-
-	pwd, err := req.Validate(repo.GetCategories())
-	if err != nil {
-		// TODO return error response (fix in another task)
-		panic("failed to validate create params")
-	}
-
-	pwd.ID = repo.GetNextPasswordId()
-	repo.SavePassword(pwd)
-	c.PureJSON(http.StatusOK, pwd)
 }
 
 func (service *Service) Publish(c *gin.Context) {
