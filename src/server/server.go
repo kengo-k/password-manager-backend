@@ -6,10 +6,22 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator"
 	"github.com/kengo-k/password-manager/context"
 	"github.com/kengo-k/password-manager/model"
 	"github.com/kengo-k/password-manager/repo"
+	"github.com/kengo-k/password-manager/validators"
 )
+
+func createErrorResult(message string, err *error) map[string]string {
+	ret := map[string]string{
+		"message": message,
+	}
+	if err != nil {
+		ret["error"] = fmt.Sprintf("%v", *err)
+	}
+	return ret
+}
 
 type Service struct {
 	repo *repo.Repository
@@ -52,16 +64,28 @@ func (service *Service) GetPasswordList(c *gin.Context) {
 func (service *Service) CreatePassword(c *gin.Context) {
 	repo := service.repo
 
+	// bind parameters
 	var req model.PasswordCreateRequest
 	if c.ShouldBind(&req) != nil {
-		// TODO return error response (fix in another task)
-		panic("failed to bind create params")
+		c.PureJSON(http.StatusBadRequest, createErrorResult("failed to bind create params", nil))
+		return
 	}
 
+	// validate parameters
+	categories := repo.GetCategories()
+	validate := validator.New()
+	validate.RegisterValidation("is_valid_category", validators.ValidateCategory(categories))
+	err := validate.Struct(&req)
+	if err != nil {
+		c.PureJSON(http.StatusBadRequest, createErrorResult("failed to validate create params", &err))
+		return
+	}
+
+	// TODO ライブラリのバリデーションを採用したので使うのやめる
 	pwd, err := req.Validate(repo.GetCategories())
 	if err != nil {
 		// TODO return error response (fix in another task)
-		panic("failed to validate create params")
+		panic(fmt.Sprintf("failed to validate create params: %v", err))
 	}
 
 	pwd.ID = repo.GetNextPasswordId()
@@ -69,56 +93,76 @@ func (service *Service) CreatePassword(c *gin.Context) {
 	c.PureJSON(http.StatusOK, pwd)
 }
 
-func (service *Service) DeletePassword(c *gin.Context) {
-	repo := service.repo
-	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		c.PureJSON(http.StatusBadRequest, map[string]string{
-			"message": fmt.Sprintf("failed to delete, id: `%v` is not a number", idStr),
-		})
-		return
-	}
-	pwd := repo.GetPassword(id)
-	if pwd == nil {
-		c.PureJSON(http.StatusNotFound, map[string]string{
-			"message": fmt.Sprintf("failed to delete, id: `%v` was not found", id),
-		})
-		return
-	}
-	repo.DeletePassword(pwd)
-	c.PureJSON(http.StatusOK, pwd)
-}
-
 func (service *Service) UpdatePassword(c *gin.Context) {
 	repo := service.repo
+
+	// get update target id from path param
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		// TODO return error response (fix in another task)
-		panic("failed to convert id to number")
+		c.PureJSON(
+			http.StatusBadRequest,
+			createErrorResult(fmt.Sprintf("failed to update, id: `%v` is not a number", idStr), nil),
+		)
+		return
 	}
 
+	// bind parameters
 	var req model.PasswordUpdateRequest
 	if c.ShouldBind(&req) != nil {
-		// TODO return error response (fix in another task)
-		panic("failed to bind update params")
-	}
-	pwd := repo.GetPassword(id)
-	if pwd == nil {
-		// TODO return error response (fix in another task)
-		panic("failed to get password")
+		c.PureJSON(http.StatusBadRequest, createErrorResult("failed to bind bind params", nil))
+		return
 	}
 
+	// check update target password exists
+	pwd := repo.GetPassword(id)
+	if pwd == nil {
+		c.PureJSON(
+			http.StatusBadRequest,
+			createErrorResult(fmt.Sprintf("failed to update password, id: %v not found", id), nil))
+		return
+	}
+
+	// validate update params and create updated password
 	err = req.Validate(pwd, repo.GetCategories())
 	if err != nil {
-		// TODO return error response (fix in another task)
-		panic("failed to validate update request")
+		c.PureJSON(
+			http.StatusBadRequest,
+			createErrorResult("failed to update password, validation error", &err))
+		return
 	}
 
 	// TODO 変更が一切ないデータが来た場合はcommitしたくないので変更が存在する場合のみSaveする
 
 	repo.SavePassword(pwd)
+	c.PureJSON(http.StatusOK, pwd)
+}
+
+func (service *Service) DeletePassword(c *gin.Context) {
+	repo := service.repo
+
+	// get delete target id from path param
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.PureJSON(
+			http.StatusBadRequest,
+			createErrorResult(fmt.Sprintf("failed to delete, id: `%v` is not a number", idStr), nil),
+		)
+		return
+	}
+
+	// if password exists, delete that password
+	pwd := repo.GetPassword(id)
+	if pwd == nil {
+		c.PureJSON(
+			http.StatusNotFound,
+			createErrorResult(fmt.Sprintf("failed to delete, id: `%v` was not found", id), nil),
+		)
+		return
+	}
+	repo.DeletePassword(pwd)
+
 	c.PureJSON(http.StatusOK, pwd)
 }
 

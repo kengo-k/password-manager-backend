@@ -21,9 +21,9 @@ type Password struct {
 
 // request model for password creation
 type PasswordCreateRequest struct {
-	Name       string `json:"name"`
-	Desc       string `json:"desc"`
-	CategoryID string `json:"category_id"`
+	Name       string `json:"name" validate:"min=1"`
+	Desc       string `json:"desc" validate:"min=1"`
+	CategoryID string `json:"category_id" validate:"is_valid_category"`
 	User       string `json:"user"`
 	Password   string `json:"password"`
 	Mail       string `json:"mail"`
