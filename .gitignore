@@ -1,4 +1,4 @@
+.bin
 .env
-node_modules
-dist
 .DS_Store
+coverage_report
