@@ -36,9 +36,33 @@ func (c *Config) GetPasswordFile() string {
 	return c.PasswordFile
 }
 
-func NewConfig() IConfig {
-	config := &Config{}
-	return config
+func NewConfig(configPath string) IConfig {
+	err := godotenv.Load(configPath)
+	if err != nil {
+		panic("failed to load .env")
+	}
+	url := os.Getenv("REPOSITORY_URL")
+	user := os.Getenv("REPOSITORY_USER")
+	pass := os.Getenv("REPOSITORY_PASS")
+	file := os.Getenv("PASSWORD_FILE")
+	if url == "" {
+		panic("missing env: REPOSITORY_URL")
+	}
+	if user == "" {
+		panic("missing env: REPOSITORY_USER")
+	}
+	if pass == "" {
+		panic("missing env: REPOSITORY_PASS")
+	}
+	if file == "" {
+		panic("missing env: PASSWORD_FILE")
+	}
+	return &Config{
+		RepositoryURL:  url,
+		RepositoryUser: user,
+		RepositoryPass: pass,
+		PasswordFile:   file,
+	}
 }
 
 func GetConfig() *Config {
