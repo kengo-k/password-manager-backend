@@ -1,202 +1,166 @@
 package server
 
 import (
-	"fmt"
-	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator"
-	"github.com/kengo-k/password-manager/context"
-	"github.com/kengo-k/password-manager/model"
-	"github.com/kengo-k/password-manager/repo"
-	"github.com/kengo-k/password-manager/validators"
+	"github.com/kengo-k/password-manager/service"
 )
 
-func createErrorResult(message string, err *error) map[string]string {
-	ret := map[string]string{
-		"message": message,
-	}
-	if err != nil {
-		ret["error"] = fmt.Sprintf("%v", *err)
-	}
-	return ret
-}
+func NewServer(service service.IServiceProvider) *gin.Engine {
+	server := gin.New()
 
-type Service struct {
-	repo *repo.Repository
-}
+	server.POST("/api/passwords", service.CreatePassword())
+	server.GET("/api/passwords", service.GetPasswordList())
+	server.PUT("/api/passwords/:id", service.UpdatePassword())
+	server.DELETE("/api/passwords/:id", service.DeletePassword())
+	server.POST("/api/passwords/publish", service.Publish())
 
-func NewServer(service *Service) *gin.Engine {
-	server := gin.Default()
-	server.GET("/api/passwords", service.GetPasswordList)
-	server.PUT("/api/passwords/:id", service.UpdatePassword)
-	server.POST("/api/passwords", service.CreatePassword)
-	server.DELETE("/api/passwords/:id", service.DeletePassword)
-	server.GET("/api/categories", service.GetCategoryList)
-	server.PUT("/api/categories/:id", service.UpdateCategory)
-	server.POST("/api/passwords/publish", service.Publish)
+	server.GET("/api/categories", service.GetCategoryList())
+	server.PUT("/api/categories/:id", service.UpdateCategory())
+
 	return server
 }
 
-func NewService() *Service {
-	// load data
-	passwords, err := context.Load()
-	if err != nil {
-		panic(fmt.Sprintf("failed to load initial data: %v", err))
-	}
+// func (service *Service) GetPasswordList(c *gin.Context) {
+// 	data := service.repo.FindPasswords()
+// 	c.PureJSON(http.StatusOK, data)
+// }
 
-	// init database
-	database := model.NewDatabase()
-	if err := database.Init(passwords); err != nil {
-		panic(fmt.Sprintf("failed to init database: %v", err))
-	}
+// func (service *Service) CreatePassword(c *gin.Context) {
+// 	repo := service.repo
 
-	repo := repo.NewRepository(database)
-	return &Service{repo: repo}
-}
+// 	// bind parameters
+// 	var req model.PasswordCreateRequest
+// 	if c.ShouldBind(&req) != nil {
+// 		c.PureJSON(http.StatusBadRequest, createErrorResult("failed to bind create params", nil))
+// 		return
+// 	}
 
-func (service *Service) GetPasswordList(c *gin.Context) {
-	data := service.repo.FindPasswords()
-	c.PureJSON(http.StatusOK, data)
-}
+// 	// validate parameters
+// 	categories := repo.GetCategories()
+// 	validate := validator.New()
+// 	validate.RegisterValidation("is_valid_category", validators.ValidateCategory(categories))
+// 	err := validate.Struct(&req)
+// 	if err != nil {
+// 		c.PureJSON(http.StatusBadRequest, createErrorResult("failed to validate create params", &err))
+// 		return
+// 	}
 
-func (service *Service) CreatePassword(c *gin.Context) {
-	repo := service.repo
+// 	// TODO ライブラリのバリデーションを採用したので使うのやめる
+// 	pwd, err := req.Validate(repo.GetCategories())
+// 	if err != nil {
+// 		// TODO return error response (fix in another task)
+// 		panic(fmt.Sprintf("failed to validate create params: %v", err))
+// 	}
 
-	// bind parameters
-	var req model.PasswordCreateRequest
-	if c.ShouldBind(&req) != nil {
-		c.PureJSON(http.StatusBadRequest, createErrorResult("failed to bind create params", nil))
-		return
-	}
+// 	pwd.ID = repo.GetNextPasswordId()
+// 	repo.SavePassword(pwd)
+// 	c.PureJSON(http.StatusOK, pwd)
+// }
 
-	// validate parameters
-	categories := repo.GetCategories()
-	validate := validator.New()
-	validate.RegisterValidation("is_valid_category", validators.ValidateCategory(categories))
-	err := validate.Struct(&req)
-	if err != nil {
-		c.PureJSON(http.StatusBadRequest, createErrorResult("failed to validate create params", &err))
-		return
-	}
+// func (service *Service) UpdatePassword(c *gin.Context) {
+// 	repo := service.repo
 
-	// TODO ライブラリのバリデーションを採用したので使うのやめる
-	pwd, err := req.Validate(repo.GetCategories())
-	if err != nil {
-		// TODO return error response (fix in another task)
-		panic(fmt.Sprintf("failed to validate create params: %v", err))
-	}
+// 	// get update target id from path param
+// 	idStr := c.Param("id")
+// 	id, err := strconv.Atoi(idStr)
+// 	if err != nil {
+// 		c.PureJSON(
+// 			http.StatusBadRequest,
+// 			createErrorResult(fmt.Sprintf("failed to update, id: `%v` is not a number", idStr), nil),
+// 		)
+// 		return
+// 	}
 
-	pwd.ID = repo.GetNextPasswordId()
-	repo.SavePassword(pwd)
-	c.PureJSON(http.StatusOK, pwd)
-}
+// 	// bind parameters
+// 	var req model.PasswordUpdateRequest
+// 	if c.ShouldBind(&req) != nil {
+// 		c.PureJSON(http.StatusBadRequest, createErrorResult("failed to bind bind params", nil))
+// 		return
+// 	}
 
-func (service *Service) UpdatePassword(c *gin.Context) {
-	repo := service.repo
+// 	// check update target password exists
+// 	pwd := repo.GetPassword(id)
+// 	if pwd == nil {
+// 		c.PureJSON(
+// 			http.StatusBadRequest,
+// 			createErrorResult(fmt.Sprintf("failed to update password, id: %v not found", id), nil))
+// 		return
+// 	}
 
-	// get update target id from path param
-	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		c.PureJSON(
-			http.StatusBadRequest,
-			createErrorResult(fmt.Sprintf("failed to update, id: `%v` is not a number", idStr), nil),
-		)
-		return
-	}
+// 	// validate update params and create updated password
+// 	err = req.Validate(pwd, repo.GetCategories())
+// 	if err != nil {
+// 		c.PureJSON(
+// 			http.StatusBadRequest,
+// 			createErrorResult("failed to update password, validation error", &err))
+// 		return
+// 	}
 
-	// bind parameters
-	var req model.PasswordUpdateRequest
-	if c.ShouldBind(&req) != nil {
-		c.PureJSON(http.StatusBadRequest, createErrorResult("failed to bind bind params", nil))
-		return
-	}
+// 	// TODO 変更が一切ないデータが来た場合はcommitしたくないので変更が存在する場合のみSaveする
 
-	// check update target password exists
-	pwd := repo.GetPassword(id)
-	if pwd == nil {
-		c.PureJSON(
-			http.StatusBadRequest,
-			createErrorResult(fmt.Sprintf("failed to update password, id: %v not found", id), nil))
-		return
-	}
+// 	repo.SavePassword(pwd)
+// 	c.PureJSON(http.StatusOK, pwd)
+// }
 
-	// validate update params and create updated password
-	err = req.Validate(pwd, repo.GetCategories())
-	if err != nil {
-		c.PureJSON(
-			http.StatusBadRequest,
-			createErrorResult("failed to update password, validation error", &err))
-		return
-	}
+// func (service *Service) DeletePassword(c *gin.Context) {
+// 	repo := service.repo
 
-	// TODO 変更が一切ないデータが来た場合はcommitしたくないので変更が存在する場合のみSaveする
+// 	// get delete target id from path param
+// 	idStr := c.Param("id")
+// 	id, err := strconv.Atoi(idStr)
+// 	if err != nil {
+// 		c.PureJSON(
+// 			http.StatusBadRequest,
+// 			createErrorResult(fmt.Sprintf("failed to delete, id: `%v` is not a number", idStr), nil),
+// 		)
+// 		return
+// 	}
 
-	repo.SavePassword(pwd)
-	c.PureJSON(http.StatusOK, pwd)
-}
+// 	// if password exists, delete that password
+// 	pwd := repo.GetPassword(id)
+// 	if pwd == nil {
+// 		c.PureJSON(
+// 			http.StatusNotFound,
+// 			createErrorResult(fmt.Sprintf("failed to delete, id: `%v` was not found", id), nil),
+// 		)
+// 		return
+// 	}
+// 	repo.DeletePassword(pwd)
 
-func (service *Service) DeletePassword(c *gin.Context) {
-	repo := service.repo
+// 	c.PureJSON(http.StatusOK, pwd)
+// }
 
-	// get delete target id from path param
-	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		c.PureJSON(
-			http.StatusBadRequest,
-			createErrorResult(fmt.Sprintf("failed to delete, id: `%v` is not a number", idStr), nil),
-		)
-		return
-	}
+// func (service *Service) GetCategoryList(c *gin.Context) {
+// 	data := service.repo.GetCategories()
+// 	c.PureJSON(http.StatusOK, data)
+// }
 
-	// if password exists, delete that password
-	pwd := repo.GetPassword(id)
-	if pwd == nil {
-		c.PureJSON(
-			http.StatusNotFound,
-			createErrorResult(fmt.Sprintf("failed to delete, id: `%v` was not found", id), nil),
-		)
-		return
-	}
-	repo.DeletePassword(pwd)
+// func (service *Service) UpdateCategory(c *gin.Context) {
+// 	repo := service.repo
+// 	catID := c.Param("id")
+// 	var req model.CategoryUpdateRequest
+// 	if c.ShouldBind(&req) == nil {
+// 		cat := repo.GetCategory(catID)
+// 		if cat != nil {
+// 			if req.Name != nil {
+// 				cat.Name = *req.Name
+// 			}
+// 			if req.Order != nil {
+// 				cat.Order = *req.Order
+// 			}
+// 			repo.SaveCategory(cat)
+// 		}
+// 		c.PureJSON(http.StatusOK, cat)
+// 	}
+// }
 
-	c.PureJSON(http.StatusOK, pwd)
-}
-
-func (service *Service) GetCategoryList(c *gin.Context) {
-	data := service.repo.GetCategories()
-	c.PureJSON(http.StatusOK, data)
-}
-
-func (service *Service) UpdateCategory(c *gin.Context) {
-	repo := service.repo
-	catID := c.Param("id")
-	var req model.CategoryUpdateRequest
-	if c.ShouldBind(&req) == nil {
-		cat := repo.GetCategory(catID)
-		if cat != nil {
-			if req.Name != nil {
-				cat.Name = *req.Name
-			}
-			if req.Order != nil {
-				cat.Order = *req.Order
-			}
-			repo.SaveCategory(cat)
-		}
-		c.PureJSON(http.StatusOK, cat)
-	}
-}
-
-func (service *Service) Publish(c *gin.Context) {
-	if !service.repo.IsDirty() {
-		c.PureJSON(http.StatusAccepted, map[string]bool{"success": false})
-		return
-	}
-	pwds := service.repo.Serialize()
-	context.Save(pwds)
-	service.repo.SetClean()
-	c.PureJSON(http.StatusOK, map[string]bool{"success": true})
-}
+// func (service *Service) Publish(c *gin.Context) {
+// 	if !service.repo.IsDirty() {
+// 		c.PureJSON(http.StatusAccepted, map[string]bool{"success": false})
+// 		return
+// 	}
+// 	pwds := service.repo.Serialize()
+// 	context.Save(pwds)
+// 	service.repo.SetClean()
+// 	c.PureJSON(http.StatusOK, map[string]bool{"success": true})
+// }
