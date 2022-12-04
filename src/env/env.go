@@ -6,11 +6,39 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type IConfig interface {
+	GetRepositoryURL() string
+	GetRepositoryUser() string
+	GetRepositoryPass() string
+	GetPasswordFile() string
+}
+
 type Config struct {
 	RepositoryURL  string
 	RepositoryUser string
 	RepositoryPass string
 	PasswordFile   string
+}
+
+func (c *Config) GetRepositoryURL() string {
+	return c.RepositoryURL
+}
+
+func (c *Config) GetRepositoryUser() string {
+	return c.RepositoryUser
+}
+
+func (c *Config) GetRepositoryPass() string {
+	return c.RepositoryPass
+}
+
+func (c *Config) GetPasswordFile() string {
+	return c.PasswordFile
+}
+
+func NewConfig() IConfig {
+	config := &Config{}
+	return config
 }
 
 func GetConfig() *Config {
