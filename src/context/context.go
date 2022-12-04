@@ -25,20 +25,21 @@ type IContext interface {
 }
 
 type Context struct {
-	LoadFn func() ([]string, error)
-	SaveFn func(serializeData [][]*model.Password) error
+	LoadFn func(config env.IConfig) ([]string, error)
+	SaveFn func(serializeData [][]*model.Password, config env.IConfig) error
+	config env.IConfig
 }
 
 func (ctx *Context) Load() ([]string, error) {
-	return ctx.LoadFn()
+	return ctx.LoadFn(ctx.config)
 }
 
 func (ctx *Context) Save(serializeData [][]*model.Password) error {
-	return ctx.SaveFn(serializeData)
+	return ctx.SaveFn(serializeData, ctx.config)
 }
 
-func loadFile() ([]string, error) {
-	f, err := os.Open("./password.md")
+func loadFile(config env.IConfig) ([]string, error) {
+	f, err := os.Open(config.GetPasswordFile())
 	if err != nil {
 		return nil, fmt.Errorf("failed to open from file")
 	}
@@ -60,13 +61,11 @@ func loadFile() ([]string, error) {
 	return lines, nil
 }
 
-func loadRepository() ([]string, error) {
-
-	config := env.GetConfig()
+func loadRepository(config env.IConfig) ([]string, error) {
 
 	f := memfs.New()
 	repo, err := git.Clone(memory.NewStorage(), f, &git.CloneOptions{
-		URL:           config.RepositoryURL,
+		URL:           config.GetRepositoryURL(),
 		ReferenceName: plumbing.ReferenceName("refs/heads/master"),
 	})
 	if err != nil {
@@ -76,7 +75,7 @@ func loadRepository() ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get work tree: %v", err)
 	}
-	file, err := w.Filesystem.Open(config.PasswordFile)
+	file, err := w.Filesystem.Open(config.GetPasswordFile())
 	if err != nil {
 		return nil, fmt.Errorf("failed to open password file: %v", err)
 	}
@@ -91,8 +90,8 @@ func loadRepository() ([]string, error) {
 	return l, nil
 }
 
-func saveFile(serializedData [][]*model.Password) error {
-	config := env.GetConfig()
+func saveFile(serializedData [][]*model.Password, config env.IConfig) error {
+
 	var sb strings.Builder
 	ifNil := func(sp *string) string {
 		if sp == nil {
@@ -116,7 +115,7 @@ func saveFile(serializedData [][]*model.Password) error {
 			fmt.Fprint(&sb, "\n")
 		}
 	}
-	f, err := os.Create(config.PasswordFile)
+	f, err := os.Create(config.GetPasswordFile())
 	if err != nil {
 		panic("failed to open file for write")
 	}
@@ -125,14 +124,13 @@ func saveFile(serializedData [][]*model.Password) error {
 	return nil
 }
 
-func saveRepository(serializedData [][]*model.Password) error {
+func saveRepository(serializedData [][]*model.Password, config env.IConfig) error {
 
 	// save password database into file
-	saveFile(serializedData)
+	saveFile(serializedData, config)
 
 	// push saved file to git repository
-	config := env.GetConfig()
-	pwdFile, err := os.Open(config.PasswordFile)
+	pwdFile, err := os.Open(config.GetPasswordFile())
 
 	// 読み取り時の例外処理
 	if err != nil {
@@ -147,7 +145,7 @@ func saveRepository(serializedData [][]*model.Password) error {
 
 	f := memfs.New()
 	repo, err := git.Clone(memory.NewStorage(), f, &git.CloneOptions{
-		URL:           config.RepositoryURL,
+		URL:           config.GetRepositoryURL(),
 		ReferenceName: plumbing.ReferenceName("refs/heads/master"),
 	})
 	if err != nil {
@@ -159,13 +157,13 @@ func saveRepository(serializedData [][]*model.Password) error {
 		// TODO return error response
 		panic("failed to get work tree")
 	}
-	file, err := w.Filesystem.Create(config.PasswordFile)
+	file, err := w.Filesystem.Create(config.GetPasswordFile())
 	if err != nil {
 		panic("failed to create new file in file system")
 	}
 	defer file.Close()
 	file.Write(contents)
-	w.Add(config.PasswordFile)
+	w.Add(config.GetPasswordFile())
 	w.Commit("commit by password manager", &git.CommitOptions{
 		Author: &object.Signature{
 			Name:  "password-manager",
@@ -175,8 +173,8 @@ func saveRepository(serializedData [][]*model.Password) error {
 	})
 
 	auth := &http.BasicAuth{
-		Username: config.RepositoryUser,
-		Password: config.RepositoryPass,
+		Username: config.GetRepositoryUser(),
+		Password: config.GetRepositoryPass(),
 	}
 	err = repo.Push(&git.PushOptions{Auth: auth})
 	if err != nil {
@@ -185,8 +183,10 @@ func saveRepository(serializedData [][]*model.Password) error {
 	return nil
 }
 
-func NewContext(mode runmode.RunMode) IContext {
-	ctx := &Context{}
+func NewContext(mode runmode.RunMode, config env.IConfig) IContext {
+	ctx := &Context{
+		config: config,
+	}
 	switch mode {
 	case runmode.FILE_TO_FILE:
 		ctx.LoadFn = loadFile
