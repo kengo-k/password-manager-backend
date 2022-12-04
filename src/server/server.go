@@ -6,7 +6,7 @@ import (
 )
 
 func NewServer(service service.IServiceProvider) *gin.Engine {
-	server := gin.Default()
+	server := gin.New()
 
 	server.POST("/api/passwords", service.CreatePassword())
 	server.GET("/api/passwords", service.GetPasswordList())

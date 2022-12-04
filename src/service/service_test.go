@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	passwordContext "github.com/kengo-k/password-manager/context"
 	"github.com/kengo-k/password-manager/context/runmode"
@@ -24,6 +25,7 @@ func setup() *http.Server {
 }
 
 func TestMain(m *testing.M) {
+	gin.SetMode(gin.TestMode)
 	server := setup()
 	go func() {
 		server.ListenAndServe()
