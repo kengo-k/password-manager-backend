@@ -3,6 +3,7 @@ package password
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,10 +18,10 @@ import (
 	"github.com/kengo-k/password-manager/types"
 )
 
-type ApiCallWrapper func(method string, url string, req any, res any)
+type ApiCallWrapper func(method string, url string, req any, res any) error
 
 // get api function for test
-func getGinHandler(api types.ApiCall) ApiCallWrapper {
+func createApiWrapper(api types.ApiCall) ApiCallWrapper {
 	gin.SetMode(gin.TestMode)
 	// get context
 	config := env.NewConfig("testdata/.test.env")
@@ -37,22 +38,33 @@ func getGinHandler(api types.ApiCall) ApiCallWrapper {
 	response := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(response)
 
-	return func(method string, url string, req any, res any) {
+	return func(method string, url string, req any, res any) error {
+		// if req exists, set request params to context
 		if req != nil {
-			requestJson, _ := json.Marshal(req)
-			request, _ := http.NewRequest(method, url, bytes.NewReader(requestJson))
+			requestJson, err := json.Marshal(req)
+			if err != nil {
+				return err
+			}
+			request, err := http.NewRequest(method, url, bytes.NewReader(requestJson))
+			if err != nil {
+				return err
+			}
 			request.Header.Add("Content-Type", binding.MIMEJSON)
 			ctx.Request = request
 		}
 		callApi(ctx)
-		json.Unmarshal(response.Body.Bytes(), res)
+		return json.Unmarshal(response.Body.Bytes(), res)
 	}
 }
 
 func TestGetPasswords(t *testing.T) {
-	callApi := getGinHandler(GetPasswords)
+	callApi := createApiWrapper(GetPasswords)
+
 	passwords := []model.Password{}
-	callApi("GET", "/api/passwords", nil, &passwords)
+	err := callApi("GET", "/api/passwords", nil, &passwords)
+	if err != nil {
+		t.Errorf(fmt.Sprintf("failed to call api: %v", err))
+	}
 
 	expectedLen := 9
 	if len(passwords) != expectedLen {
