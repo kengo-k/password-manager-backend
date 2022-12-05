@@ -11,15 +11,15 @@ func getStrPointer(s string) *string {
 func TestApplyUpdateValues(t *testing.T) {
 	pwd := Password{
 		Name: "name",
-		Desc: getStrPointer("desc"),
+		Desc: "desc",
 		Category: &Category{
 			ID:   "cat1",
 			Name: "category1",
 		},
-		User:     getStrPointer("user"),
-		Password: getStrPointer("password"),
-		Mail:     getStrPointer("mail"),
-		Note:     getStrPointer("note"),
+		User:     "user",
+		Password: "password",
+		Mail:     "mail",
+		Note:     "note",
 	}
 	req := PasswordUpdateRequest{
 		Name:       getStrPointer("new name"),
@@ -43,22 +43,22 @@ func TestApplyUpdateValues(t *testing.T) {
 	if pwd.Name != "new name" {
 		t.Errorf("got: %v, expected: %v", pwd.Name, "new name")
 	}
-	if *pwd.Desc != "new desc" {
-		t.Errorf("got: %v, expected: %v", *pwd.Desc, "new desc")
+	if pwd.Desc != "new desc" {
+		t.Errorf("got: %v, expected: %v", pwd.Desc, "new desc")
 	}
 	if pwd.Category.ID != "cat2" {
 		t.Errorf("got: %v, expected: %v", pwd.Category.ID, "cat2")
 	}
-	if *pwd.User != "new user" {
-		t.Errorf("got: %v, expected: %v", *pwd.User, "new user")
+	if pwd.User != "new user" {
+		t.Errorf("got: %v, expected: %v", pwd.User, "new user")
 	}
-	if *pwd.Password != "new password" {
-		t.Errorf("got: %v, expected: %v", *pwd.Password, "new password")
+	if pwd.Password != "new password" {
+		t.Errorf("got: %v, expected: %v", pwd.Password, "new password")
 	}
-	if *pwd.Mail != "new mail" {
-		t.Errorf("got: %v, expected: %v", *pwd.Mail, "new mail")
+	if pwd.Mail != "new mail" {
+		t.Errorf("got: %v, expected: %v", pwd.Mail, "new mail")
 	}
-	if *pwd.Note != "new note" {
-		t.Errorf("got: %v, expected: %v", *pwd.Note, "new note")
+	if pwd.Note != "new note" {
+		t.Errorf("got: %v, expected: %v", pwd.Note, "new note")
 	}
 }

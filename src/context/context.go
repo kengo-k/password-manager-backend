@@ -93,13 +93,6 @@ func loadRepository(config env.IConfig) ([]string, error) {
 func saveFile(serializedData [][]*model.Password, config env.IConfig) error {
 
 	var sb strings.Builder
-	ifNil := func(sp *string) string {
-		if sp == nil {
-			return ""
-		} else {
-			return *sp
-		}
-	}
 
 	catCount := len(serializedData)
 	for i, passwords := range serializedData {
@@ -109,7 +102,7 @@ func saveFile(serializedData [][]*model.Password, config env.IConfig) error {
 		fmt.Fprint(&sb, "|------|------|--------|------------|--------|------|\n")
 		for _, p := range passwords {
 			fmt.Fprintf(&sb, "| %s | %s | %s | %s | %s | %s |\n",
-				p.Name, ifNil(p.Desc), ifNil(p.User), ifNil(p.Password), ifNil(p.Mail), ifNil(p.Note))
+				p.Name, p.Desc, p.User, p.Password, p.Mail, p.Note)
 		}
 		if i < catCount-1 {
 			fmt.Fprint(&sb, "\n")

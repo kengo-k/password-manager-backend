@@ -142,12 +142,12 @@ func (d *Database) Init(mdLines []string) error {
 		p := &Password{
 			ID:       d.GetNextPasswordId(),
 			Name:     columns[0],
-			Desc:     &columns[1],
+			Desc:     columns[1],
 			Category: cat,
-			User:     &columns[2],
-			Password: &columns[3],
-			Mail:     &columns[4],
-			Note:     &columns[5],
+			User:     columns[2],
+			Password: columns[3],
+			Mail:     columns[4],
+			Note:     columns[5],
 		}
 		d.PasswordMap[p.ID] = p
 		pwds := d.CategorizedPasswords[cat.ID]
@@ -174,14 +174,8 @@ func serialize(categories map[string]*Category, passwords map[int]*Password) [][
 		ps = append(ps, p)
 		cmap[p.Category.ID] = ps
 	}
-	ifNil := func(sp *string) string {
-		if sp == nil {
-			return ""
-		}
-		return *sp
-	}
 	getCmpKey := func(p *Password) string {
-		return fmt.Sprintf("%s-%s-%s-%s-%s", p.Name, ifNil(p.Desc), ifNil(p.User), ifNil(p.Password), ifNil(p.Mail))
+		return fmt.Sprintf("%s-%s-%s-%s-%s", p.Name, p.Desc, p.User, p.Password, p.Mail)
 	}
 	for _, ps := range cmap {
 		sort.Slice(ps, func(a int, b int) bool {
