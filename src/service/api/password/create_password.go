@@ -43,6 +43,6 @@ var CreatePassword types.ApiCall = func(repo *repo.Repository, context context.I
 
 		pwd.ID = repo.GetNextPasswordId()
 		repo.SavePassword(pwd)
-		c.PureJSON(http.StatusOK, pwd)
+		c.PureJSON(http.StatusCreated, pwd)
 	}
 }

@@ -27,7 +27,7 @@ func getGinHandler(api types.ApiCall) (gin.HandlerFunc, *httptest.ResponseRecord
 	// init repository
 	repo := repo.NewRepository(database)
 	// get api function
-	handler := GetPasswords(repo, context)
+	handler := api(repo, context)
 	// init response and context
 	response := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(response)
