@@ -19,6 +19,12 @@ jobs:
 
       - name: run go test
         run: |
+          # install gcov2lcov
+          ROOT_DIR = $(shell pwd)
+          GOBIN = $(ROOT_DIR)/.bin
+          export PATH := $(ROOT_DIR)/.bin:$(PATH)
+          GOBIN=$(GOBIN) go install github.com/jandelgado/gcov2lcov@v1.0.5
+
           cd src
           go mod tidy
           go test -v -coverprofile=cover.out ./...
