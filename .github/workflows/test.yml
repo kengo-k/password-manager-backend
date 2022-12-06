@@ -32,10 +32,11 @@ jobs:
           gcov2lcov -infile=cover.out -outfile=../cover.lcov
           cd ..
           genhtml cover.lcov -o cover_report
-          go tool cover -html=src/cover.out -o cover_report/cover.html
+          cd src
+          go tool cover -html=cover.out -o cover.html
 
       - name: upload report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cover_report
           path: ./cover_report
