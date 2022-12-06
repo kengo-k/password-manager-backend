@@ -35,6 +35,12 @@ jobs:
           cd src
           go tool cover -html=cover.out -o cover.html
 
+      - name: upload coverage to codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODE_COV }}
+          flags: backend-go
+
       - name: upload report
         uses: actions/upload-artifact@v3
         with:
