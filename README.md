@@ -1,3 +1,7 @@
-[![test](https://github.com/kengo-k/password-manager-backend/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/kengo-k/password-manager-backend/actions/workflows/test.yml)
+<a href="https://github.com/kengo-k/password-manager-backend/actions/workflows/test.yml" >
+  <img src="https://github.com/kengo-k/password-manager-backend/actions/workflows/test.yml/badge.svg?branch=main"/>
+</a>
 
-[![codecov](https://codecov.io/gh/kengo-k/password-manager-backend/branch/main/graph/badge.svg?token=OQPIFVB8JY)](https://codecov.io/gh/kengo-k/password-manager-backend)
+<a href="https://codecov.io/gh/kengo-k/password-manager-backend" >
+  <img src="https://codecov.io/gh/kengo-k/password-manager-backend/branch/main/graph/badge.svg?token=OQPIFVB8JY"/>
+</a>
