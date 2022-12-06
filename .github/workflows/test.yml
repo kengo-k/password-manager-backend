@@ -20,8 +20,8 @@ jobs:
           path: repo
 
       - name: run go test
-        run: |
-          cd repo src
+        run:
+          cd repo/src
           go mod tidy
           go test -v -coverprofile=cover.out ./...
           gcov2lcov -infile=cover.out -outfile=cover.lcov
