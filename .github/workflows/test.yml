@@ -19,5 +19,7 @@ jobs:
 
       - name: run go test
         run: |
-          ls -la
-          pwd
+          cd src
+          go mod tidy
+          go test -v -coverprofile=cover.out ./...
+          gcov2lcov -infile=cover.out -outfile=cover.lcov
