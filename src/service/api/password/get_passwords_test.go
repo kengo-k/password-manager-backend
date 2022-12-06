@@ -18,11 +18,31 @@ import (
 	"github.com/kengo-k/password-manager/types"
 )
 
-type ApiCallWrapper func(method string, url string, req any, res any) error
+type IApiCallWrapper interface {
+	CallApi(req any, res any) (*httptest.ResponseRecorder, error)
+	SetMimeType(mimeType string)
+	SetRepository(repo *repo.Repository)
+}
 
-// get api function for test
-func createApiWrapper(api types.ApiCall) ApiCallWrapper {
-	gin.SetMode(gin.TestMode)
+type ApiCallWrapper struct {
+	mimeType string
+	callApi  func(req any, res any) (*httptest.ResponseRecorder, error)
+	repo     *repo.Repository
+}
+
+func (wrapper *ApiCallWrapper) CallApi(req any, res any) (*httptest.ResponseRecorder, error) {
+	return wrapper.callApi(req, res)
+}
+
+func (wrapper *ApiCallWrapper) SetMimeType(mimeType string) {
+	wrapper.mimeType = mimeType
+}
+
+func (wrapper *ApiCallWrapper) SetRepository(repo *repo.Repository) {
+	wrapper.repo = repo
+}
+
+func newTestRepository() *repo.Repository {
 	// get context
 	config := env.NewConfig("testdata/.test.env")
 	context := context.NewContext(runmode.FILE_TO_FILE, config)
@@ -32,36 +52,55 @@ func createApiWrapper(api types.ApiCall) ApiCallWrapper {
 	database.Init(passwords)
 	// init repository
 	repo := repo.NewRepository(database)
-	// get api function
-	callApi := api(repo, context)
+	return repo
+}
+
+// get api function for test
+func createApiWrapper(api types.ApiCall, method string, url string) IApiCallWrapper {
+	gin.SetMode(gin.TestMode)
+	// get context
+	config := env.NewConfig("testdata/.test.env")
+	context := context.NewContext(runmode.FILE_TO_FILE, config)
+	// init repository
+	repo := newTestRepository()
+
+	apiCallWrapper := ApiCallWrapper{
+		mimeType: binding.MIMEJSON,
+		repo:     repo,
+	}
+
 	// init response and context
 	response := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(response)
 
-	return func(method string, url string, req any, res any) error {
+	apiCallWrapper.callApi = func(req any, res any) (*httptest.ResponseRecorder, error) {
 		// if req exists, set request params to context
 		if req != nil {
 			requestJson, err := json.Marshal(req)
 			if err != nil {
-				return err
+				return response, err
 			}
 			request, err := http.NewRequest(method, url, bytes.NewReader(requestJson))
 			if err != nil {
-				return err
+				return response, err
 			}
-			request.Header.Add("Content-Type", binding.MIMEJSON)
+			request.Header.Add("Content-Type", apiCallWrapper.mimeType)
 			ctx.Request = request
 		}
+		// get api function
+		callApi := api(apiCallWrapper.repo, context)
 		callApi(ctx)
-		return json.Unmarshal(response.Body.Bytes(), res)
+		return response, json.Unmarshal(response.Body.Bytes(), res)
 	}
+
+	return &apiCallWrapper
 }
 
 func TestGetPasswords(t *testing.T) {
-	callApi := createApiWrapper(GetPasswords)
+	apiWrapper := createApiWrapper(GetPasswords, "GET", "/api/passwords")
 
 	passwords := []model.Password{}
-	err := callApi("GET", "/api/passwords", nil, &passwords)
+	_, err := apiWrapper.CallApi(nil, &passwords)
 	if err != nil {
 		t.Errorf(fmt.Sprintf("failed to call api: %v", err))
 	}

@@ -30,20 +30,8 @@ type PasswordCreateRequest struct {
 	Note       string `json:"note"`
 }
 
-func (req *PasswordCreateRequest) Validate(cmap map[string]*Category) (*Password, error) {
-
-	if len(req.Name) == 0 {
-		return nil, fmt.Errorf("name is empty")
-	}
-
-	if len(req.CategoryID) == 0 {
-		return nil, fmt.Errorf("category is empty")
-	}
-
-	cat, ok := cmap[req.CategoryID]
-	if !ok {
-		return nil, fmt.Errorf("category %v is not exists", req.CategoryID)
-	}
+func (req *PasswordCreateRequest) Validate(cmap map[string]*Category) *Password {
+	cat := cmap[req.CategoryID]
 	pwd := Password{
 		Name:     req.Name,
 		Desc:     req.Desc,
@@ -53,7 +41,7 @@ func (req *PasswordCreateRequest) Validate(cmap map[string]*Category) (*Password
 		Mail:     req.Mail,
 		Note:     req.Note,
 	}
-	return &pwd, nil
+	return &pwd
 }
 
 // request model for password update
