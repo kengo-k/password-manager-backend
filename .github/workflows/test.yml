@@ -20,3 +20,4 @@ jobs:
       - name: run go test
         run:
           ls -la
+          pwd
