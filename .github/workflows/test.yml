@@ -33,3 +33,9 @@ jobs:
           cd ..
           genhtml cover.lcov -o cover_report
           ls -la
+
+      - name: upload report
+        uses: actions/upload-artifact@v2
+        with:
+          name: cover_report
+          path: ./cover_report
