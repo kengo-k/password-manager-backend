@@ -30,3 +30,5 @@ jobs:
           go mod tidy
           go test -v -coverprofile=cover.out ./...
           gcov2lcov -infile=cover.out -outfile=cover.lcov
+          genhtml cover.lcov -o cover_report
+          ls -la
