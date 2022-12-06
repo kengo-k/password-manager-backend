@@ -1,7 +1,6 @@
 package password
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,13 +33,7 @@ var CreatePassword types.ApiCall = func(repo *repo.Repository, context context.I
 			return
 		}
 
-		// TODO ライブラリのバリデーションを採用したので使うのやめる
-		pwd, err := req.Validate(repo.GetCategories())
-		if err != nil {
-			// TODO return error response (fix in another task)
-			panic(fmt.Sprintf("failed to validate create params: %v", err))
-		}
-
+		pwd := req.Validate(repo.GetCategories())
 		pwd.ID = repo.GetNextPasswordId()
 		repo.SavePassword(pwd)
 		c.PureJSON(http.StatusCreated, pwd)
