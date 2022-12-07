@@ -59,7 +59,7 @@ func TestCreatePassword(t *testing.T) {
 			},
 			prepareFunc: prepare,
 			assertFunc: func(testItem testSetting, code int, password model.Password) {
-				assert.Equal(t, code, 401)
+				assert.Equal(t, code, 400)
 			},
 		},
 	}
