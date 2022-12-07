@@ -16,5 +16,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          git checkout -b "f/${{ github.event.issue.number }}"
-          git push origin "f/${{ github.event.issue.number }}"
+          gh issue develop ${{ github.event.issue.number }} --name "f/${{ github.event.issue.number }}" --base main
