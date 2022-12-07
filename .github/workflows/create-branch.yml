@@ -1,0 +1,20 @@
+name: create new branch when issue created
+
+on:
+  issues:
+    types: [ opened ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout dev
+        uses: actions/checkout@v2
+
+      - name: create feature branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git checkout -b "f/${{ github.event.issue.number }}"
+          git push origin "f/${{ github.event.issue.number }}"
