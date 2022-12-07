@@ -1,5 +1,5 @@
-<a href="https://github.com/kengo-k/password-manager-backend/actions/workflows/test.yml" >
-  <img src="https://github.com/kengo-k/password-manager-backend/actions/workflows/test.yml/badge.svg?branch=main"/>
+<a href="https://github.com/kengo-k/password-manager-backend/actions/workflows/run-test.yml" >
+  <img src="https://github.com/kengo-k/password-manager-backend/actions/workflows/run-test.yml/badge.svg?branch=main"/>
 </a>
 
 <a href="https://codecov.io/gh/kengo-k/password-manager-backend" >
