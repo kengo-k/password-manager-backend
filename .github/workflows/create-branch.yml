@@ -1,4 +1,4 @@
-name: create new branch when issue created
+name: create-branch-when-issue-opened
 
 on:
   issues:
