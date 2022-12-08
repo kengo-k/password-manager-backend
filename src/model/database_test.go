@@ -2,7 +2,90 @@ package model
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
+
+func TestGetNextPasswordId(t *testing.T) {
+	database := NewDatabase()
+	assert.Equal(t, 1, database.GetNextPasswordId())
+	assert.Equal(t, 2, database.GetNextPasswordId())
+}
+
+func TestDirty(t *testing.T) {
+	database := NewDatabase()
+	assert.Equal(t, false, database.IsDirty())
+	database.SetDirty(true)
+	assert.Equal(t, true, database.IsDirty())
+}
+
+func TestNewDatabase(t *testing.T) {
+	database := NewDatabase()
+	assert.NotNil(t, database)
+}
+
+func TestSplitColumns(t *testing.T) {
+	lines := splitColumns("|aaa|bbb|ccc|")
+	assert.Equal(t, 3, len(lines))
+	assert.Equal(t, "aaa", lines[0])
+	assert.Equal(t, "bbb", lines[1])
+	assert.Equal(t, "ccc", lines[2])
+}
+
+func TestGetCategory(t *testing.T) {
+	type testSetting struct {
+		line       string
+		want       assert.ValueAssertionFunc
+		assertFunc func(c Category)
+		wantError  assert.ErrorAssertionFunc
+	}
+
+	tss := []testSetting{
+		{
+			line:      "---",
+			want:      assert.Nil,
+			wantError: assert.Error,
+		},
+		{
+			line:      "# hello",
+			want:      assert.Nil,
+			wantError: assert.Error,
+		},
+		{
+			line:      "# hello: ",
+			want:      assert.Nil,
+			wantError: assert.Error,
+		},
+		{
+			line:      "# hello: name,order",
+			want:      assert.Nil,
+			wantError: assert.Error,
+		},
+		{
+			line:      "# hello: name=hello,order=aaa",
+			want:      assert.Nil,
+			wantError: assert.Error,
+		},
+		{
+			line: "# hello: name=hello,order=1",
+			assertFunc: func(c Category) {
+				assert.Equal(t, c, Category{Name: "hello", ID: "hello", Order: 1})
+			},
+			wantError: assert.NoError,
+		},
+	}
+
+	for _, ts := range tss {
+		v, err := getCategory(ts.line)
+		if ts.want != nil {
+			assert.True(t, ts.want(t, v))
+		}
+		if ts.assertFunc != nil {
+			ts.assertFunc(*v)
+		}
+		assert.True(t, ts.wantError(t, err))
+	}
+}
 
 func TestSerialize(t *testing.T) {
 	cat := map[string]*Category{
