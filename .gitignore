@@ -1,4 +1,5 @@
 .bin
 .env
+.idea
 .DS_Store
 coverage_report
