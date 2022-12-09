@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -141,5 +142,235 @@ func TestSerialize(t *testing.T) {
 		if p.Category.Name != tbl.Cat {
 			t.Errorf("category: got=%v, expected:%v", p.Category.Name, tbl.Cat)
 		}
+	}
+}
+
+func Test_lineContext_SetCategoryOn(t *testing.T) {
+	type fields struct {
+		isCategory bool
+		isHeader   bool
+	}
+	tests := []struct {
+		name   string
+		fields fields
+	}{
+		{
+			name: "success",
+			fields: fields{
+				isCategory: false,
+				isHeader:   false,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			lc := &lineContext{
+				isCategory: tt.fields.isCategory,
+				isHeader:   tt.fields.isHeader,
+			}
+			lc.SetCategoryOn()
+			assert.Equal(t, true, lc.isCategory)
+		})
+	}
+}
+
+func Test_lineContext_ShouldSkip(t *testing.T) {
+	type fields struct {
+		isCategory bool
+		isHeader   bool
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		{
+			name: "false, false",
+			fields: fields{
+				isCategory: false,
+				isHeader:   false,
+			},
+			want: false,
+		},
+		{
+			name: "true, false",
+			fields: fields{
+				isCategory: true,
+				isHeader:   false,
+			},
+			want: true,
+		},
+		{
+			name: "false, true",
+			fields: fields{
+				isCategory: false,
+				isHeader:   true,
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			lc := &lineContext{
+				isCategory: tt.fields.isCategory,
+				isHeader:   tt.fields.isHeader,
+			}
+			assert.Equalf(t, tt.want, lc.ShouldSkip(), "ShouldSkip()")
+		})
+	}
+}
+
+func TestDatabase_Init(t *testing.T) {
+	type fields struct {
+		dirty                bool
+		maxPasswordId        int
+		PasswordMap          map[int]*Password
+		CategoryMap          map[string]*Category
+		CategorizedPasswords map[string][]*Password
+	}
+	type args struct {
+		mdLines []string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name:   "invalid category line",
+			fields: fields{},
+			args: args{
+				mdLines: []string{
+					"# invalid category line",
+				},
+			},
+			wantErr: assert.Error,
+		}, {
+			name: "invalid column size",
+			fields: fields{
+				PasswordMap:          map[int]*Password{},
+				CategoryMap:          map[string]*Category{},
+				CategorizedPasswords: map[string][]*Password{},
+			},
+			args: args{
+				mdLines: []string{
+					"# cat1: name=category1,order=10",
+					"| 名称 | 説明 | ユーザ | パスワード | メール | 備考 |",
+					"|---|---|---|---|---|---|---|",
+					"|col1|col2|col3|col4|col5|col6|col7|",
+				},
+			},
+			wantErr: assert.Error,
+		}, {
+			name: "success",
+			fields: fields{
+				PasswordMap:          map[int]*Password{},
+				CategoryMap:          map[string]*Category{},
+				CategorizedPasswords: map[string][]*Password{},
+			},
+			args: args{
+				mdLines: []string{
+					"# cat1: name=category1,order=1",
+					"| 名称 | 説明 | ユーザ | パスワード | メール | 備考 |",
+					"|---|---|---|---|---|---|",
+					"|col1|col2|col3|col4|col5|col6|",
+					"",
+					"# cat2: name=category2,order=2",
+					"| 名称 | 説明 | ユーザ | パスワード | メール | 備考 |",
+					"|---|---|---|---|---|---|",
+					"|col-a|col-b|col-c|col-d|col-e|col-f|",
+				},
+			},
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &Database{
+				dirty:                tt.fields.dirty,
+				maxPasswordId:        tt.fields.maxPasswordId,
+				PasswordMap:          tt.fields.PasswordMap,
+				CategoryMap:          tt.fields.CategoryMap,
+				CategorizedPasswords: tt.fields.CategorizedPasswords,
+			}
+			tt.wantErr(t, d.Init(tt.args.mdLines), fmt.Sprintf("Init(%v)", tt.args.mdLines))
+		})
+	}
+}
+
+func TestDatabase_Serialize(t *testing.T) {
+	type fields struct {
+		dirty                bool
+		maxPasswordId        int
+		PasswordMap          map[int]*Password
+		CategoryMap          map[string]*Category
+		CategorizedPasswords map[string][]*Password
+	}
+	cat1 := Category{
+		ID:    "cat1",
+		Name:  "category1",
+		Order: 10,
+	}
+	cat2 := Category{
+		ID:    "cat2",
+		Name:  "category2",
+		Order: 20,
+	}
+	pwd1 := Password{
+		ID:       1,
+		Name:     "name1",
+		Desc:     "desc1",
+		Category: &cat1,
+		User:     "user1",
+		Password: "password1",
+		Mail:     "mail1",
+		Note:     "note1",
+	}
+	pwd2 := Password{
+		ID:       2,
+		Name:     "name2",
+		Desc:     "desc2",
+		Category: &cat2,
+		User:     "user2",
+		Password: "password2",
+		Mail:     "mail2",
+		Note:     "note2",
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   [][]*Password
+	}{
+		{
+			name: "success",
+			fields: fields{
+				PasswordMap: map[int]*Password{
+					1: &pwd1,
+					2: &pwd2,
+				},
+				CategoryMap: map[string]*Category{
+					"cat1": &cat1,
+					"cat2": &cat2,
+				},
+				CategorizedPasswords: map[string][]*Password{
+					"cat1": {&pwd1},
+					"cat2": {&pwd2},
+				},
+			},
+			want: [][]*Password{{&pwd1}, {&pwd2}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &Database{
+				dirty:                tt.fields.dirty,
+				maxPasswordId:        tt.fields.maxPasswordId,
+				PasswordMap:          tt.fields.PasswordMap,
+				CategoryMap:          tt.fields.CategoryMap,
+				CategorizedPasswords: tt.fields.CategorizedPasswords,
+			}
+			assert.Equalf(t, tt.want, d.Serialize(), "Serialize()")
+		})
 	}
 }
