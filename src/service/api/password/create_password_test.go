@@ -1,6 +1,7 @@
 package password
 
 import (
+	"github.com/gin-gonic/gin"
 	"testing"
 
 	"github.com/gin-gonic/gin/binding"
@@ -11,7 +12,7 @@ import (
 func TestCreatePassword(t *testing.T) {
 
 	prepare := func() IApiCallWrapper {
-		return createApiWrapper(CreatePassword, "POST", "/api/passwords")
+		return createApiWrapper(CreatePassword, "POST", "/api/passwords", gin.Params{})
 	}
 
 	type testSetting struct {

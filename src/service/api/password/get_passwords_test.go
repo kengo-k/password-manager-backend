@@ -56,7 +56,7 @@ func newTestRepository() *repo.Repository {
 }
 
 // get api function for test
-func createApiWrapper(api types.ApiCall, method string, url string) IApiCallWrapper {
+func createApiWrapper(api types.ApiCall, method string, url string, params gin.Params) IApiCallWrapper {
 	gin.SetMode(gin.TestMode)
 	// get context
 	config := env.NewConfig("testdata/.test.env")
@@ -72,6 +72,7 @@ func createApiWrapper(api types.ApiCall, method string, url string) IApiCallWrap
 	// init response and context
 	response := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(response)
+	ctx.Params = params
 
 	apiCallWrapper.callApi = func(req any, res any) (*httptest.ResponseRecorder, error) {
 		// if req exists, set request params to context
@@ -97,7 +98,7 @@ func createApiWrapper(api types.ApiCall, method string, url string) IApiCallWrap
 }
 
 func TestGetPasswords(t *testing.T) {
-	apiWrapper := createApiWrapper(GetPasswords, "GET", "/api/passwords")
+	apiWrapper := createApiWrapper(GetPasswords, "GET", "/api/passwords", gin.Params{})
 
 	passwords := []model.Password{}
 	_, err := apiWrapper.CallApi(nil, &passwords)
