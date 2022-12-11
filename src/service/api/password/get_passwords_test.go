@@ -42,9 +42,8 @@ func (wrapper *ApiCallWrapper) SetRepository(repo *repo.Repository) {
 	wrapper.repo = repo
 }
 
-func newTestRepository() *repo.Repository {
+func newTestRepository(config env.IConfig) *repo.Repository {
 	// get context
-	config := env.NewConfig("testdata/.test.env")
 	context := context.NewContext(runmode.FILE_TO_FILE, config)
 	// init database
 	passwords, _ := context.Load()
@@ -59,10 +58,10 @@ func newTestRepository() *repo.Repository {
 func createApiWrapper(api types.ApiCall, method string, url string, params gin.Params) IApiCallWrapper {
 	gin.SetMode(gin.TestMode)
 	// get context
-	config := env.NewConfig("testdata/.test.env")
+	config, _ := env.NewConfig("testdata/.test.env")
 	context := context.NewContext(runmode.FILE_TO_FILE, config)
 	// init repository
-	repo := newTestRepository()
+	repo := newTestRepository(config)
 
 	apiCallWrapper := ApiCallWrapper{
 		mimeType: binding.MIMEJSON,

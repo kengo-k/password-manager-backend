@@ -45,7 +45,7 @@ func loadFile(config env.IConfig) ([]string, error) {
 	}
 	defer f.Close()
 
-	lines := make([]string, 1024)
+	var lines []string
 	reader := bufio.NewReaderSize(f, 1024)
 	for {
 		line, _, err := reader.ReadLine()
