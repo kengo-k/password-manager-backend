@@ -15,7 +15,7 @@ import (
 )
 
 func setup() *http.Server {
-	config := env.NewConfig("testdata/.test.env")
+	config, _ := env.NewConfig("testdata/.test.env")
 	context := passwordContext.NewContext(runmode.FILE_TO_FILE, config)
 	service := service.NewServiceProvider(context)
 	router := server.NewServer(service)

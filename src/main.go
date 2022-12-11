@@ -13,7 +13,10 @@ import (
 
 func main() {
 	gin.SetMode(gin.ReleaseMode)
-	config := env.NewConfig(".env")
+	config, err := env.NewConfig(".env")
+	if err != nil {
+		panic("failed to get config, abort!")
+	}
 	context := context.NewContext(runmode.GIT_TO_GIT, config)
 	service := service.NewServiceProvider(context)
 	router := server.NewServer(service)
