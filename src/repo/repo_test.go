@@ -1,81 +1,373 @@
 package repo
 
 import (
+	"github.com/kengo-k/password-manager/model"
+	"github.com/stretchr/testify/assert"
+	"reflect"
 	"testing"
 )
 
-func TestConvertMarkdown(t *testing.T) {
-	// p := func(s string) *string {
-	// 	return &s
-	// }
-	// cate1 := model.Category{
-	// 	Name: "cate1",
-	// 	Desc: p("desc1"),
-	// }
-	// cate2 := model.Category{
-	// 	Name: "cate2",
-	// 	Desc: p("desc2"),
-	// }
-	// input := map[string][]*model.Password{
-	// 	"cate1": {
-	// 		{
-	// 			ID:       1,
-	// 			Name:     "name1",
-	// 			Desc:     p("desc1"),
-	// 			Category: cate1,
-	// 			User:     p("user1"),
-	// 			Password: p("password1"),
-	// 			Mail:     p("mail1"),
-	// 			Note:     p("note1"),
-	// 		},
-	// 		{
-	// 			ID:       2,
-	// 			Name:     "name2",
-	// 			Desc:     p("desc2"),
-	// 			Category: cate1,
-	// 			User:     p("user2"),
-	// 			Password: p("password2"),
-	// 			Mail:     p("mail2"),
-	// 			Note:     p("note2"),
-	// 		},
-	// 	},
-	// 	"cate2": {
-	// 		{
-	// 			ID:       3,
-	// 			Name:     "name3",
-	// 			Desc:     p("desc3"),
-	// 			Category: cate2,
-	// 			User:     p("user3"),
-	// 			Password: p("password3"),
-	// 			Mail:     p("mail3"),
-	// 			Note:     p("note3"),
-	// 		},
-	// 	},
-	// }
-	// markdown := ConvertMarkdown(input)
-	// gotLen := len(markdown)
-	// expectedLen := 9
-	// if gotLen != expectedLen {
-	// 	t.Errorf("length: got=%v, expected:%v", gotLen, expectedLen)
-	// }
+func TestNewRepository(t *testing.T) {
+	type args struct {
+		database *model.Database
+	}
+	tests := []struct {
+		name string
+		args args
+		want func(args args, repo *Repository)
+	}{
+		{
+			name: "success",
+			args: args{},
+			want: func(args args, repo *Repository) {
+				assert.Equal(t, repo.database, args.database)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := NewRepository(tt.args.database)
+			tt.want(tt.args, got)
+		})
+	}
+}
 
-	// exptects := []string{
-	// 	"# cate1: desc1",
-	// 	"|id|name|desc|user|password|mail|note|",
-	// 	"|---|---|---|---|---|---|---|",
-	// 	"|1|name1|desc1|user1|password1|mail1|note1|",
-	// 	"|2|name2|desc2|user2|password2|mail2|note2|",
-	// 	"# cate2: desc2",
-	// 	"|id|name|desc|user|password|mail|note|",
-	// 	"|---|---|---|---|---|---|---|",
-	// 	"|3|name3|desc3|user3|password3|mail3|note3|",
-	// }
+func TestRepository_DeleteCategory(t *testing.T) {
+	type fields struct {
+		database *model.Database
+	}
+	type args struct {
+		cat *model.Category
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := &Repository{
+				database: tt.fields.database,
+			}
+			repo.DeleteCategory(tt.args.cat)
+		})
+	}
+}
 
-	// for i, expect := range exptects {
-	// 	got := markdown[i]
-	// 	if got != expect {
-	// 		t.Errorf("line[%v]: got=%v, expected=%v", i, got, expect)
-	// 	}
-	// }
+func TestRepository_DeletePassword(t *testing.T) {
+	type fields struct {
+		database *model.Database
+	}
+	type args struct {
+		p *model.Password
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := &Repository{
+				database: tt.fields.database,
+			}
+			repo.DeletePassword(tt.args.p)
+		})
+	}
+}
 
+func TestRepository_FindPasswords(t *testing.T) {
+	type fields struct {
+		database *model.Database
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []*model.Password
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := &Repository{
+				database: tt.fields.database,
+			}
+			if got := repo.FindPasswords(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("FindPasswords() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRepository_GetCategories(t *testing.T) {
+	type fields struct {
+		database *model.Database
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   map[string]*model.Category
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := &Repository{
+				database: tt.fields.database,
+			}
+			if got := repo.GetCategories(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetCategories() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRepository_GetCategory(t *testing.T) {
+	type fields struct {
+		database *model.Database
+	}
+	type args struct {
+		id string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   *model.Category
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := &Repository{
+				database: tt.fields.database,
+			}
+			if got := repo.GetCategory(tt.args.id); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetCategory() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRepository_GetNextPasswordId(t *testing.T) {
+	tests := []struct {
+		name           string
+		createDatabase func() *model.Database
+		want           int
+	}{
+		{
+			name: "success",
+			createDatabase: func() *model.Database {
+				return model.NewDatabase()
+			},
+			want: 1,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			database := tt.createDatabase()
+			repo := &Repository{
+				database: database,
+			}
+			if got := repo.GetNextPasswordId(); got != tt.want {
+				t.Errorf("GetNextPasswordId() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRepository_GetPassword(t *testing.T) {
+	type fields struct {
+		database *model.Database
+	}
+	type args struct {
+		id int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   *model.Password
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := &Repository{
+				database: tt.fields.database,
+			}
+			if got := repo.GetPassword(tt.args.id); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetPassword() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRepository_GetSortedCategories(t *testing.T) {
+	type fields struct {
+		database *model.Database
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []*model.Category
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := &Repository{
+				database: tt.fields.database,
+			}
+			if got := repo.GetSortedCategories(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetSortedCategories() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRepository_IsDirty(t *testing.T) {
+	tests := []struct {
+		name           string
+		createDatabase func() *model.Database
+		want           bool
+	}{
+		{
+			name: "is clean",
+			createDatabase: func() *model.Database {
+				return model.NewDatabase()
+			},
+			want: false,
+		},
+		{
+			name: "is dirty",
+			createDatabase: func() *model.Database {
+				database := model.NewDatabase()
+				database.SetDirty(true)
+				return database
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			database := tt.createDatabase()
+			repo := &Repository{
+				database: database,
+			}
+			if got := repo.IsDirty(); got != tt.want {
+				t.Errorf("IsDirty() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRepository_SaveCategory(t *testing.T) {
+	type fields struct {
+		database *model.Database
+	}
+	type args struct {
+		cat *model.Category
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := &Repository{
+				database: tt.fields.database,
+			}
+			repo.SaveCategory(tt.args.cat)
+		})
+	}
+}
+
+func TestRepository_SavePassword(t *testing.T) {
+	type fields struct {
+		database *model.Database
+	}
+	type args struct {
+		p *model.Password
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := &Repository{
+				database: tt.fields.database,
+			}
+			repo.SavePassword(tt.args.p)
+		})
+	}
+}
+
+func TestRepository_Serialize(t *testing.T) {
+	type fields struct {
+		database *model.Database
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   [][]*model.Password
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := &Repository{
+				database: tt.fields.database,
+			}
+			if got := repo.Serialize(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Serialize() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRepository_SetClean(t *testing.T) {
+	tests := []struct {
+		name           string
+		createDatabase func() *model.Database
+		beforeAssert   func(repo *Repository)
+		afterAssert    func(repo *Repository)
+	}{
+		{
+			name: "success",
+			createDatabase: func() *model.Database {
+				database := model.NewDatabase()
+				database.SetDirty(true)
+				return database
+			},
+			beforeAssert: func(repo *Repository) {
+				assert.Equal(t, true, repo.IsDirty())
+			},
+			afterAssert: func(repo *Repository) {
+				assert.Equal(t, false, repo.IsDirty())
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			database := tt.createDatabase()
+			repo := &Repository{
+				database: database,
+			}
+			tt.beforeAssert(repo)
+			repo.SetClean()
+			tt.afterAssert(repo)
+		})
+	}
 }
