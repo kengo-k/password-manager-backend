@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// password table model
+// Password password table model
 type Password struct {
 	ID        int       `json:"id"`
 	Name      string    `json:"name"`
@@ -19,7 +19,7 @@ type Password struct {
 	UpdatedAt time.Time
 }
 
-// request model for password creation
+// PasswordCreateRequest request model for password creation
 type PasswordCreateRequest struct {
 	Name       string `json:"name" validate:"min=1"`
 	Desc       string `json:"desc" validate:"min=1"`
@@ -44,7 +44,7 @@ func (req *PasswordCreateRequest) Validate(cmap map[string]*Category) *Password 
 	return &pwd
 }
 
-// request model for password update
+// PasswordUpdateRequest request model for password update
 type PasswordUpdateRequest struct {
 	Name       *string `json:"name"`
 	Desc       *string `json:"desc"`
