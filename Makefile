@@ -2,6 +2,9 @@ ROOT_DIR = $(shell pwd)
 GOBIN = $(ROOT_DIR)/.bin
 export PATH := $(ROOT_DIR)/.bin:$(PATH)
 
+build:
+	cd src && go build
+
 dev:
 	cd src && go run ./main.go
 
